@@ -657,7 +657,7 @@ initData();
 // ===== APP STATE =====
 let currentUser = null;
 let currentPage = 'dashboard';
-let vehicleFilter = { search:'', status:'', zone:'' };
+let vehicleFilter = { search:'', status:'', zone:'', dealerId:'' };
 
 const navConfig = {
   admin: [
@@ -825,7 +825,11 @@ function getStatusBadge(s) {
 }
 function filterVehicles(arr) {
   let result = arr;
-  if (currentUser.role==='dealer') result = result.filter(v=>v.dealerId===currentUser.id);
+  if (currentUser.role==='dealer') {
+    result = result.filter(v=>v.dealerId===currentUser.id);
+  } else if (vehicleFilter.dealerId) {
+    result = result.filter(v=>v.dealerId===vehicleFilter.dealerId);
+  }
   if (vehicleFilter.search) result = result.filter(v=>v.plate.toUpperCase().includes(vehicleFilter.search.toUpperCase())||(v.brand||'').includes(vehicleFilter.search));
   if (vehicleFilter) result = result.filter(v=>!vehicleFilter.status||v.status===vehicleFilter.status);
   if (vehicleFilter.zone) result = result.filter(v=>v.entryZone===vehicleFilter.zone);
@@ -1127,6 +1131,9 @@ function renderForSale() {
         <input type="text" placeholder="搜索车牌号" id="fsSearch" oninput="vehicleFilter.search=this.value;document.getElementById('fsList').innerHTML=renderForSaleTable()">
         <select id="fsZone" onchange="vehicleFilter.zone=this.value;document.getElementById('fsList').innerHTML=renderForSaleTable()">
           <option value="">全部分区</option><option value="A区">A区</option><option value="B区">B区</option>
+        </select>
+        <select id="fsDealer" onchange="vehicleFilter.dealerId=this.value;document.getElementById('fsList').innerHTML=renderForSaleTable()"${currentUser.role==='dealer'?' disabled':''}>
+          <option value="">全部车商</option>${currentUser.role==='dealer'?`<option value="${currentUser.id}" selected>${currentUser.name}</option>`:dealers.filter(d=>d.status==='active').map(d=>`<option value="${d.id}"${vehicleFilter.dealerId===d.id?' selected':''}>${d.name}</option>`).join('')}
         </select>
       </div>
       <div id="fsList">${renderForSaleTable()}</div>
