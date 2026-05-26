@@ -463,6 +463,31 @@ table tbody tr:last-child td { border-bottom:none; }
   .modal { padding:20px 16px; }
 }
 
+/* Dimension Tabs */
+.dim-tabs { display:flex; gap:4px; margin-bottom:16px; background:#F0F2F5; border-radius:var(--radius-sm); padding:3px; width:fit-content; }
+.dim-tab { padding:6px 18px; border-radius:var(--radius-sm); font-size:13px; font-weight:500; cursor:pointer; color:var(--text-secondary); transition:var(--transition); border:none; background:transparent; font-family:var(--font-cn); }
+.dim-tab:hover { color:var(--text); }
+.dim-tab.active { background:var(--surface); color:var(--primary); font-weight:600; box-shadow:var(--shadow); }
+
+/* Chart Tabs */
+.chart-tabs { display:flex; gap:4px; margin-bottom:12px; }
+.chart-tab { padding:5px 14px; border-radius:var(--radius-sm); font-size:12px; font-weight:500; cursor:pointer; color:var(--text-secondary); transition:var(--transition); border:1px solid var(--border); background:transparent; font-family:var(--font-cn); }
+.chart-tab:hover { border-color:var(--primary); color:var(--primary); }
+.chart-tab.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+
+/* Export Button */
+.btn-export { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; background:linear-gradient(135deg,var(--success),#1ABC9C); color:#fff; border:none; border-radius:var(--radius-sm); font-size:13px; font-weight:600; cursor:pointer; transition:var(--transition); font-family:var(--font-cn); }
+.btn-export:hover { opacity:0.9; transform:translateY(-1px); box-shadow:0 4px 12px rgba(46,204,113,0.3); }
+
+/* Date Range */
+.date-range { display:flex; align-items:center; gap:8px; }
+.date-range input[type="date"] { padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:12px; outline:none; background:#FAFBFC; color:var(--text); font-family:var(--font-cn); }
+.date-range input[type="date"]:focus { border-color:var(--primary); }
+.date-range .sep { color:var(--text-muted); font-size:12px; }
+
+/* Amount */
+.amount { font-weight:700; color:var(--danger); font-variant-numeric:tabular-nums; font-family:var(--font-en); }
+
 /* Scrollbar */
 ::-webkit-scrollbar { width:6px; height:6px; }
 ::-webkit-scrollbar-track { background:transparent; }
@@ -564,21 +589,30 @@ let vehicles = [
   { id:8, plate:'京H66666', type:'forsale', dealerId:'dealer2', status:'forsale', brand:'特斯拉Model3', color:'红色', entryTime:now-DAY*6, entryZone:'B区', flowCount:22 },
   { id:9, plate:'京I77777', type:'forsale', dealerId:'dealer2', status:'forsale', brand:'福特蒙迪欧', color:'棕色', entryTime:now-DAY*5, entryZone:'B区', flowCount:5 },
   { id:10, plate:'京J88888', type:'forsale', dealerId:'dealer3', status:'forsale', brand:'比亚迪汉', color:'白色', entryTime:now-DAY*12, entryZone:'A区', flowCount:18 },
-  { id:11, plate:'京K99999', type:'forsale', dealerId:'dealer3', status:'sold', brand:'雷克萨斯ES', color:'金色', entryTime:now-DAY*20, entryZone:'B区', flowCount:30, soldTime:now-DAY*3, oldPlate:null, newPlate:null },
-  { id:12, plate:'京L00001', type:'forsale', dealerId:'dealer1', status:'sold', brand:'沃尔沃S60', color:'蓝色', entryTime:now-DAY*25, entryZone:'A区', flowCount:12, soldTime:now-DAY*1, oldPlate:null, newPlate:'京M12345' },
+  { id:11, plate:'京K99999', type:'forsale', dealerId:'dealer3', status:'sold', brand:'雷克萨斯ES', color:'金色', entryTime:now-DAY*20, entryZone:'B区', flowCount:30, soldTime:now-DAY*3, soldAmount:285000, buyerName:'张伟', buyerPhone:'139****6789', oldPlate:null, newPlate:null },
+  { id:12, plate:'京L00001', type:'forsale', dealerId:'dealer1', status:'sold', brand:'沃尔沃S60', color:'蓝色', entryTime:now-DAY*25, entryZone:'A区', flowCount:12, soldTime:now-DAY*1, soldAmount:198000, buyerName:'李娜', buyerPhone:'138****8901', oldPlate:null, newPlate:'京M12345' },
   { id:13, plate:'京N12345', type:'external', dealerId:null, status:'external', brand:'社会车辆', color:'-', entryTime:now-DAY*0.1, entryZone:'A区', flowCount:0 },
   { id:14, plate:'京O67890', type:'external', dealerId:null, status:'external', brand:'社会车辆', color:'-', entryTime:now-DAY*0.2, entryZone:'B区', flowCount:0 },
   { id:15, plate:'京P11223', type:'new', dealerId:null, status:'pending', brand:'雪佛兰迈锐宝', color:'红色', entryTime:now-DAY*0.3, entryZone:'A区', flowCount:0 },
+  { id:16, plate:'京Q22334', type:'forsale', dealerId:'dealer1', status:'sold', brand:'宝马X5', color:'黑色', entryTime:now-DAY*30, entryZone:'A区', flowCount:25, soldTime:now-DAY*5, soldAmount:520000, buyerName:'王强', buyerPhone:'137****3456', oldPlate:null, newPlate:'京R55667' },
+  { id:17, plate:'京S33445', type:'forsale', dealerId:'dealer2', status:'sold', brand:'奥迪Q5', color:'白色', entryTime:now-DAY*35, entryZone:'B区', flowCount:18, soldTime:now-DAY*7, soldAmount:335000, buyerName:'赵敏', buyerPhone:'136****0123', oldPlate:null, newPlate:null },
+  { id:18, plate:'京T44556', type:'forsale', dealerId:'dealer3', status:'sold', brand:'奔驰GLC', color:'灰色', entryTime:now-DAY*18, entryZone:'B区', flowCount:22, soldTime:now-DAY*2, soldAmount:418000, buyerName:'陈刚', buyerPhone:'135****4567', oldPlate:null, newPlate:null },
+  { id:19, plate:'京U55667', type:'forsale', dealerId:'dealer1', status:'sold', brand:'大众帕萨特', color:'银色', entryTime:now-DAY*40, entryZone:'A区', flowCount:15, soldTime:now-DAY*10, soldAmount:156000, buyerName:'刘洋', buyerPhone:'134****7890', oldPlate:null, newPlate:null },
+  { id:20, plate:'京V66778', type:'forsale', dealerId:'dealer2', status:'sold', brand:'丰田汉兰达', color:'棕色', entryTime:now-DAY*28, entryZone:'B区', flowCount:20, soldTime:now-DAY*6, soldAmount:268000, buyerName:'周杰', buyerPhone:'133****2345', oldPlate:null, newPlate:null },
+  { id:21, plate:'京W77889', type:'forsale', dealerId:'dealer3', status:'sold', brand:'本田CR-V', color:'红色', entryTime:now-DAY*45, entryZone:'A区', flowCount:10, soldTime:now-DAY*15, soldAmount:172000, buyerName:'吴芳', buyerPhone:'132****5678', oldPlate:null, newPlate:null },
+  { id:22, plate:'京X88990', type:'forsale', dealerId:'dealer1', status:'sold', brand:'日产逍客', color:'蓝色', entryTime:now-DAY*32, entryZone:'A区', flowCount:8, soldTime:now-DAY*12, soldAmount:143000, buyerName:'孙磊', buyerPhone:'131****9012', oldPlate:null, newPlate:null },
+  { id:23, plate:'京Y99001', type:'forsale', dealerId:'dealer2', status:'sold', brand:'别克GL8', color:'白色', entryTime:now-DAY*22, entryZone:'B区', flowCount:28, soldTime:now-DAY*4, soldAmount:228000, buyerName:'黄丽', buyerPhone:'130****3456', oldPlate:null, newPlate:null },
 ];
 
 let entryRecords = [];
-let vehicleIdCounter = 16;
+let vehicleIdCounter = 24;
 let operationLogs = [];
 
 function initData() {
   vehicles.filter(v=>v.status==='forsale'||v.status==='sold').forEach(v=>{
-    for(let i=0;i<v.flowCount;i++){
-      const t = v.entryTime + Math.random()*(now-v.entryTime);
+    const flowTarget = v.status==='sold' ? v.flowCount : v.flowCount;
+    for(let i=0;i<flowTarget;i++){
+      const t = v.entryTime + Math.random()*(Math.min(v.soldTime||now, now)-v.entryTime);
       entryRecords.push({
         id:entryRecords.length+1, plate:v.plate, vehicleId:v.id, dealerId:v.dealerId,
         time:t, direction:Math.random()>.5?'进场':'出场',
@@ -595,12 +629,21 @@ function initData() {
     { action:'车辆绑定', detail:'车牌 [京H66666] 绑定至车商 [永信车行]' },
     { action:'车辆绑定', detail:'车牌 [京I77777] 绑定至车商 [永信车行]' },
     { action:'车辆绑定', detail:'车牌 [京J88888] 绑定至车商 [诚信二手车]' },
-    { action:'车辆售出', detail:'车牌 [京K99999] 状态变更为已售，所属车商 [诚信二手车]' },
+    { action:'车辆售出', detail:'车牌 [京K99999] 状态变更为已售，所属车商 [诚信二手车]，成交金额 ¥285,000' },
     { action:'车牌变更', detail:'车牌 [京L00001] 旧牌 [京L00001] → 新牌 [京M12345]，车商 [鑫达二手车]' },
-    { action:'车辆售出', detail:'车牌 [京L00001] 状态变更为已售，所属车商 [鑫达二手车]' },
+    { action:'车辆售出', detail:'车牌 [京L00001] 状态变更为已售，所属车商 [鑫达二手车]，成交金额 ¥198,000' },
     { action:'新车进场', detail:'车牌 [京A12345] 判定为新进车辆，进入待绑定列表' },
     { action:'新车进场', detail:'车牌 [京B67890] 判定为新进车辆，进入待绑定列表' },
     { action:'新车进场', detail:'车牌 [京C11111] 判定为新进车辆，进入待绑定列表' },
+    { action:'车辆售出', detail:'车牌 [京Q22334] 状态变更为已售，所属车商 [鑫达二手车]，成交金额 ¥520,000' },
+    { action:'车牌变更', detail:'车牌 [京Q22334] 旧牌 [京Q22334] → 新牌 [京R55667]，车商 [鑫达二手车]' },
+    { action:'车辆售出', detail:'车牌 [京S33445] 状态变更为已售，所属车商 [永信车行]，成交金额 ¥335,000' },
+    { action:'车辆售出', detail:'车牌 [京T44556] 状态变更为已售，所属车商 [诚信二手车]，成交金额 ¥418,000' },
+    { action:'车辆售出', detail:'车牌 [京U55667] 状态变更为已售，所属车商 [鑫达二手车]，成交金额 ¥156,000' },
+    { action:'车辆售出', detail:'车牌 [京V66778] 状态变更为已售，所属车商 [永信车行]，成交金额 ¥268,000' },
+    { action:'车辆售出', detail:'车牌 [京W77889] 状态变更为已售，所属车商 [诚信二手车]，成交金额 ¥172,000' },
+    { action:'车辆售出', detail:'车牌 [京X88990] 状态变更为已售，所属车商 [鑫达二手车]，成交金额 ¥143,000' },
+    { action:'车辆售出', detail:'车牌 [京Y99001] 状态变更为已售，所属车商 [永信车行]，成交金额 ¥228,000' },
   ];
   logTemplates.forEach((t,i)=>{
     operationLogs.push({
@@ -1408,101 +1451,303 @@ function toggleDealer(dealerId) {
 }
 
 // ===== PAGE: STATISTICS =====
+let statsDimension = 'day'; // day / month / year
+let statsChartTab = 'week'; // week / month / year
+let statsFilter = { brand:'', dateFrom:'', dateTo:'' };
+
 function renderStatistics() {
   const isDealer = currentUser.role==='dealer';
   const vBase = isDealer ? vehicles.filter(v=>v.dealerId===currentUser.id) : vehicles;
 
+  // ===== Sold vehicles =====
+  const soldVehicles = vBase.filter(v=>v.status==='sold');
+  const todayStart = new Date(); todayStart.setHours(0,0,0,0); const todayTs = todayStart.getTime();
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0); const monthTs = monthStart.getTime();
+  const yearStart = new Date(); yearStart.setMonth(0); yearStart.setDate(1); yearStart.setHours(0,0,0,0); const yearTs = yearStart.getTime();
+
+  const todaySales = soldVehicles.filter(v=>v.soldTime>=todayTs).length;
+  const todayAmount = soldVehicles.filter(v=>v.soldTime>=todayTs).reduce((s,v)=>s+(v.soldAmount||0),0);
+  const monthSales = soldVehicles.filter(v=>v.soldTime>=monthTs).length;
+  const monthAmount = soldVehicles.filter(v=>v.soldTime>=monthTs).reduce((s,v)=>s+(v.soldAmount||0),0);
+  const yearSales = soldVehicles.filter(v=>v.soldTime>=yearTs).length;
+  const yearAmount = soldVehicles.filter(v=>v.soldTime>=yearTs).reduce((s,v)=>s+(v.soldAmount||0),0);
+  const totalAmount = soldVehicles.reduce((s,v)=>s+(v.soldAmount||0),0);
+
+  // Pick display values based on dimension
+  let dispSales, dispAmount, dispLabel;
+  if (statsDimension==='day') { dispSales=todaySales; dispAmount=todayAmount; dispLabel='今日'; }
+  else if (statsDimension==='month') { dispSales=monthSales; dispAmount=monthAmount; dispLabel='本月'; }
+  else { dispSales=yearSales; dispAmount=yearAmount; dispLabel='本年'; }
+
+  function fmtMoney(n) {
+    if (n>=10000) return (n/10000).toFixed(n%10000===0?0:1)+'万';
+    return n.toLocaleString();
+  }
+
+  let html = '';
+
+  // ===== Dimension Tabs =====
+  html += `<div class="dim-tabs">
+    <button class="dim-tab ${statsDimension==='day'?'active':''}" onclick="statsDimension='day';navigateTo('statistics')">日维度</button>
+    <button class="dim-tab ${statsDimension==='month'?'active':''}" onclick="statsDimension='month';navigateTo('statistics')">月维度</button>
+    <button class="dim-tab ${statsDimension==='year'?'active':''}" onclick="statsDimension='year';navigateTo('statistics')">年维度</button>
+  </div>`;
+
+  // ===== Stat Cards =====
+  html += `<div class="stat-cards">
+    <div class="stat-card"><div class="card-gradient grad-orange"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-orange">📅</div>
+      <div class="stat-info"><div class="stat-label">${dispLabel}销量</div><div class="stat-value">${dispSales}<span style="font-size:14px;font-weight:400;color:var(--text-secondary)"> 台</span></div></div>
+    </div></div>
+    <div class="stat-card"><div class="card-gradient grad-blue"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-blue">📆</div>
+      <div class="stat-info"><div class="stat-label">本月销量</div><div class="stat-value">${monthSales}<span style="font-size:14px;font-weight:400;color:var(--text-secondary)"> 台</span></div><div class="stat-trend up">销售额 ¥${fmtMoney(monthAmount)}</div></div>
+    </div></div>
+    <div class="stat-card"><div class="card-gradient grad-purple"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-purple">📊</div>
+      <div class="stat-info"><div class="stat-label">本年销量</div><div class="stat-value">${yearSales}<span style="font-size:14px;font-weight:400;color:var(--text-secondary)"> 台</span></div><div class="stat-trend up">销售额 ¥${fmtMoney(yearAmount)}</div></div>
+    </div></div>
+    <div class="stat-card"><div class="card-gradient grad-red"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-red">💰</div>
+      <div class="stat-info"><div class="stat-label">累计销售额</div><div class="stat-value" style="font-size:22px">¥${fmtMoney(totalAmount)}</div><div class="stat-trend up">共 ${soldVehicles.length} 笔交易</div></div>
+    </div></div>`;
+
+  if (!isDealer) {
+    html += `
+    <div class="stat-card"><div class="card-gradient grad-green"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-green">🚗</div>
+      <div class="stat-info"><div class="stat-label">当前在售</div><div class="stat-value">${vBase.filter(v=>v.status==='forsale').length}<span style="font-size:14px;font-weight:400;color:var(--text-secondary)"> 台</span></div></div>
+    </div></div>
+    <div class="stat-card"><div class="card-gradient grad-teal"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-teal">🔄</div>
+      <div class="stat-info"><div class="stat-label">总流转次数</div><div class="stat-value">${vBase.filter(v=>(v.status==='forsale'||v.status==='sold')).reduce((s,v)=>s+v.flowCount,0)}</div></div>
+    </div></div>`;
+  }
+  html += `</div>`;
+
+  // ===== Chart Section =====
+  html += `<div class="panel">
+    <div class="panel-header"><h3>📈 销售趋势</h3>
+      <div class="chart-tabs">
+        <button class="chart-tab ${statsChartTab==='week'?'active':''}" onclick="statsChartTab='week';navigateTo('statistics')">近7日</button>
+        <button class="chart-tab ${statsChartTab==='month'?'active':''}" onclick="statsChartTab='month';navigateTo('statistics')">月度</button>
+        <button class="chart-tab ${statsChartTab==='year'?'active':''}" onclick="statsChartTab='year';navigateTo('statistics')">年度</button>
+      </div>
+    </div>
+    <div class="panel-body">${renderStatsChart(soldVehicles, vBase)}</div>
+  </div>`;
+
+  // ===== Dealer comparison (admin only) =====
+  if (!isDealer) {
+    html += renderDealerComparison();
+  }
+
+  // ===== Sold Vehicle Detail List =====
+  html += renderSoldDetailTable(soldVehicles);
+
+  return html;
+}
+
+function renderStatsChart(soldVehicles, vBase) {
+  if (statsChartTab==='week') return renderWeekChart(soldVehicles, vBase);
+  if (statsChartTab==='month') return renderMonthChart(soldVehicles);
+  return renderYearChart(soldVehicles);
+}
+
+function renderWeekChart(soldVehicles, vBase) {
   const days = [];
   for (let i=6;i>=0;i--) {
     const dayStart = now-DAY*i;
     const dayEnd = dayStart+DAY;
-    const sold = vBase.filter(v=>v.status==='sold'&&v.soldTime&&v.soldTime>=dayStart&&v.soldTime<dayEnd).length;
-    const allFlow = vBase.filter(v=>(v.status==='forsale'||v.status==='sold')).reduce((s,v)=>s+v.flowCount,0);
-    const bindings = operationLogs.filter(l=>l.action==='车辆绑定'&&l.time>=dayStart&&l.time<dayEnd).length;
+    const sold = soldVehicles.filter(v=>v.soldTime>=dayStart&&v.soldTime<dayEnd).length;
+    const amount = soldVehicles.filter(v=>v.soldTime>=dayStart&&v.soldTime<dayEnd).reduce((s,v)=>s+(v.soldAmount||0),0);
     const dateStr = new Date(dayStart);
-    days.push({ label:`${dateStr.getMonth()+1}/${dateStr.getDate()}`, sold, flow:Math.max(Math.round(allFlow/7),0), bindings });
+    days.push({ label:`${dateStr.getMonth()+1}/${dateStr.getDate()}`, sold, amount });
   }
+  const maxSold = Math.max(...days.map(d=>d.sold),1);
+  const maxAmount = Math.max(...days.map(d=>d.amount),1);
 
+  let html = `<div class="chart-row">`;
+  // Sales chart
+  html += `<div class="chart-card"><h4>📊 近7日销量趋势</h4><div class="chart-bar-wrap">`;
+  days.forEach(d=>{
+    html += `<div class="chart-bar"><div class="bar-val">${d.sold}</div><div class="bar" style="height:${Math.max(d.sold/maxSold*140,4)}px;background:linear-gradient(0deg,var(--primary),var(--primary-dark))"></div><div class="bar-label">${d.label}</div></div>`;
+  });
+  html += `</div></div>`;
+  // Amount chart
+  html += `<div class="chart-card"><h4>💰 近7日销售额趋势</h4><div class="chart-bar-wrap">`;
+  days.forEach(d=>{
+    html += `<div class="chart-bar"><div class="bar-val" style="font-size:10px">${d.amount?((d.amount/10000).toFixed(1)+'w'):'0'}</div><div class="bar" style="height:${Math.max(d.amount/maxAmount*140,4)}px;background:linear-gradient(0deg,var(--danger),#c0392b)"></div><div class="bar-label">${d.label}</div></div>`;
+  });
+  html += `</div></div></div>`;
+  return html;
+}
+
+function renderMonthChart(soldVehicles) {
+  const nowDate = new Date();
+  const monthStartTs = new Date(nowDate.getFullYear(), nowDate.getMonth(), 1).getTime();
+  const weeks = [];
+  // Group by week (rough: 7-day groups)
+  for (let w=0;w<5;w++) {
+    const wStart = monthStartTs + w*7*DAY;
+    const wEnd = wStart + 7*DAY;
+    const sold = soldVehicles.filter(v=>v.soldTime>=wStart&&v.soldTime<wEnd).length;
+    const amount = soldVehicles.filter(v=>v.soldTime>=wStart&&v.soldTime<wEnd).reduce((s,v)=>s+(v.soldAmount||0),0);
+    weeks.push({ label:`第${w+1}周`, sold, amount });
+  }
+  const maxSold = Math.max(...weeks.map(w=>w.sold),1);
+  const maxAmount = Math.max(...weeks.map(w=>w.amount),1);
+
+  let html = `<div class="chart-row">`;
+  html += `<div class="chart-card"><h4>📊 本月各周销量</h4><div class="chart-bar-wrap">`;
+  weeks.forEach(w=>{
+    html += `<div class="chart-bar"><div class="bar-val">${w.sold}</div><div class="bar" style="height:${Math.max(w.sold/maxSold*140,4)}px;background:linear-gradient(0deg,#3498DB,#2980B9)"></div><div class="bar-label">${w.label}</div></div>`;
+  });
+  html += `</div></div>`;
+  html += `<div class="chart-card"><h4>💰 本月各周销售额</h4><div class="chart-bar-wrap">`;
+  weeks.forEach(w=>{
+    html += `<div class="chart-bar"><div class="bar-val" style="font-size:10px">${w.amount?((w.amount/10000).toFixed(1)+'w'):'0'}</div><div class="bar" style="height:${Math.max(w.amount/maxAmount*140,4)}px;background:linear-gradient(0deg,#E74C3C,#c0392b)"></div><div class="bar-label">${w.label}</div></div>`;
+  });
+  html += `</div></div></div>`;
+  return html;
+}
+
+function renderYearChart(soldVehicles) {
+  const months = [];
+  const nowDate = new Date();
+  for (let m=0;m<nowDate.getMonth()+1;m++) {
+    const mStart = new Date(nowDate.getFullYear(), m, 1).getTime();
+    const mEnd = new Date(nowDate.getFullYear(), m+1, 1).getTime();
+    const sold = soldVehicles.filter(v=>v.soldTime>=mStart&&v.soldTime<mEnd).length;
+    const amount = soldVehicles.filter(v=>v.soldTime>=mStart&&v.soldTime<mEnd).reduce((s,v)=>s+(v.soldAmount||0),0);
+    months.push({ label:`${m+1}月`, sold, amount });
+  }
+  const maxSold = Math.max(...months.map(m=>m.sold),1);
+  const maxAmount = Math.max(...months.map(m=>m.amount),1);
+
+  let html = `<div class="chart-row">`;
+  html += `<div class="chart-card"><h4>📊 本年月度销量</h4><div class="chart-bar-wrap">`;
+  months.forEach(m=>{
+    html += `<div class="chart-bar"><div class="bar-val">${m.sold}</div><div class="bar" style="height:${Math.max(m.sold/maxSold*140,4)}px;background:linear-gradient(0deg,#3498DB,#1ABC9C)"></div><div class="bar-label">${m.label}</div></div>`;
+  });
+  html += `</div></div>`;
+  html += `<div class="chart-card"><h4>💰 本年月度销售额</h4><div class="chart-bar-wrap">`;
+  months.forEach(m=>{
+    html += `<div class="chart-bar"><div class="bar-val" style="font-size:10px">${m.amount?((m.amount/10000).toFixed(1)+'w'):'0'}</div><div class="bar" style="height:${Math.max(m.amount/maxAmount*140,4)}px;background:linear-gradient(0deg,#E74C3C,#F39C12)"></div><div class="bar-label">${m.label}</div></div>`;
+  });
+  html += `</div></div></div>`;
+  return html;
+}
+
+function renderDealerComparison() {
   const dealerStats = dealers.filter(d=>d.status==='active').map(d=>{
     const myV = vehicles.filter(v=>v.dealerId===d.id);
+    const soldV = myV.filter(v=>v.status==='sold');
     return {
       name:d.name, zone:d.zone,
       forSale: myV.filter(v=>v.status==='forsale').length,
-      sold: myV.filter(v=>v.status==='sold').length,
-      flow: myV.filter(v=>v.status==='forsale'||v.status==='sold').reduce((s,v)=>s+v.flowCount,0)
+      sold: soldV.length,
+      amount: soldV.reduce((s,v)=>s+(v.soldAmount||0),0),
+      flow: myV.filter(v=>(v.status==='forsale'||v.status==='sold')).reduce((s,v)=>s+v.flowCount,0)
     };
   });
+  const maxAmount = Math.max(...dealerStats.map(d=>d.amount),1);
+  const maxSold = Math.max(...dealerStats.map(d=>d.sold),1);
 
-  let html = '';
-  if (!isDealer) {
-    html += `<div class="stat-cards">
-      <div class="stat-card"><div class="card-gradient grad-red"></div><div class="card-body">
-        <div class="stat-icon-wrap icon-red">💰</div>
-        <div class="stat-info"><div class="stat-label">本月总销量</div><div class="stat-value">${vBase.filter(v=>v.status==='sold').length}</div></div>
-      </div></div>
-      <div class="stat-card"><div class="card-gradient grad-green"></div><div class="card-body">
-        <div class="stat-icon-wrap icon-green">🚗</div>
-        <div class="stat-info"><div class="stat-label">当前在售</div><div class="stat-value">${vBase.filter(v=>v.status==='forsale').length}</div></div>
-      </div></div>
-      <div class="stat-card"><div class="card-gradient grad-blue"></div><div class="card-body">
-        <div class="stat-icon-wrap icon-blue">🔄</div>
-        <div class="stat-info"><div class="stat-label">总流转</div><div class="stat-value">${vBase.filter(v=>v.status==='forsale'||v.status==='sold').reduce((s,v)=>s+v.flowCount,0)}</div></div>
-      </div></div>
-      <div class="stat-card"><div class="card-gradient grad-orange"></div><div class="card-body">
-        <div class="stat-icon-wrap icon-orange">🆕</div>
-        <div class="stat-info"><div class="stat-label">总绑定</div><div class="stat-value">${operationLogs.filter(l=>l.action==='车辆绑定').length}</div></div>
-      </div></div>
-    </div>`;
+  return `<div class="panel">
+    <div class="panel-header"><h3>🏆 车商业绩对比</h3></div>
+    <div class="panel-body no-padding">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>车商</th><th>分区</th><th>在售</th><th>已售</th><th>销售额</th><th>流转次数</th><th>售出占比</th></tr></thead>
+          <tbody>${dealerStats.map(d=>`
+            <tr>
+              <td><strong>${d.name}</strong></td><td>${d.zone}</td><td>${d.forSale}</td>
+              <td style="color:var(--danger);font-weight:700">${d.sold}</td>
+              <td><span class="amount">¥${(d.amount/10000).toFixed(1)}万</span></td>
+              <td>${d.flow}</td>
+              <td><div style="background:#eee;border-radius:10px;height:8px;width:120px"><div style="background:linear-gradient(90deg,var(--primary),var(--success));height:100%;width:${Math.round(d.sold/Math.max(maxSold,1)*100)}%;border-radius:10px"></div></div><span style="font-size:11px;color:var(--text-secondary);margin-left:6px">${maxSold?Math.round(d.sold/maxSold*100):0}%</span></td>
+            </tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderSoldDetailTable(soldVehicles) {
+  // Apply filters
+  let filtered = [...soldVehicles];
+  if (statsFilter.brand) filtered = filtered.filter(v=>(v.brand||'').includes(statsFilter.brand));
+  if (statsFilter.dateFrom) {
+    const fromTs = new Date(statsFilter.dateFrom).getTime();
+    filtered = filtered.filter(v=>v.soldTime>=fromTs);
   }
+  if (statsFilter.dateTo) {
+    const toTs = new Date(statsFilter.dateTo).getTime()+DAY;
+    filtered = filtered.filter(v=>v.soldTime<=toTs);
+  }
+  filtered.sort((a,b)=>(b.soldTime||0)-(a.soldTime||0));
 
-  // Charts
-  const maxSold = Math.max(...days.map(d=>d.sold),1);
-  const maxFlow = Math.max(...days.map(d=>d.flow),1);
+  const totalFilteredAmount = filtered.reduce((s,v)=>s+(v.soldAmount||0),0);
 
-  html += `<div class="chart-section"><div class="chart-row">
-    <div class="chart-card">
-      <h4>📈 近7日销量趋势</h4>
-      <div class="chart-bar-wrap">
-        ${days.map(d=>`<div class="chart-bar">
-          <div class="bar-val">${d.sold}</div>
-          <div class="bar" style="height:${Math.max(d.sold/maxSold*140,4)}px;background:linear-gradient(0deg,var(--primary),var(--primary-dark))"></div>
-          <div class="bar-label">${d.label}</div>
-        </div>`).join('')}
+  return `<div class="panel">
+    <div class="panel-header">
+      <h3>📋 已售车辆明细</h3>
+      <div style="display:flex;gap:8px">
+        <span style="font-size:12px;color:var(--text-muted)">${filtered.length} 条记录 | 合计 <span class="amount">¥${(totalFilteredAmount/10000).toFixed(1)}万</span></span>
+        <button class="btn-export btn-sm" onclick="exportSoldDetail()" title="模拟导出已售车辆明细">📥 导出明细</button>
       </div>
     </div>
-    <div class="chart-card">
-      <h4>🔄 近7日场内流转趋势</h4>
-      <div class="chart-bar-wrap">
-        ${days.map(d=>`<div class="chart-bar">
-          <div class="bar-val">${d.flow}</div>
-          <div class="bar" style="height:${Math.max(d.flow/maxFlow*140,4)}px;background:linear-gradient(0deg,var(--success),#27ae60)"></div>
-          <div class="bar-label">${d.label}</div>
-        </div>`).join('')}
-      </div>
-    </div>
-  </div></div>`;
-
-  if (!isDealer) {
-    const maxDS = Math.max(...dealerStats.map(d=>d.sold),1);
-    html += `<div class="panel">
-      <div class="panel-header"><h3>车商业绩对比</h3></div>
-      <div class="panel-body no-padding">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>车商</th><th>分区</th><th>在售</th><th>已售</th><th>流转</th><th>售出占比</th></tr></thead>
-            <tbody>${dealerStats.map(d=>`
-              <tr>
-                <td><strong>${d.name}</strong></td><td>${d.zone}</td><td>${d.forSale}</td>
-                <td style="color:var(--danger);font-weight:700">${d.sold}</td><td>${d.flow}</td>
-                <td><div style="background:#eee;border-radius:10px;height:8px;width:120px"><div style="background:linear-gradient(90deg,var(--primary),var(--success));height:100%;width:${Math.round(d.sold/maxDS*100)}%;border-radius:10px"></div></div></td>
-              </tr>`).join('')}</tbody>
-          </table>
+    <div class="panel-body">
+      <div class="filters">
+        <input type="text" placeholder="筛选品牌型号" id="soldBrandFilter" oninput="statsFilter.brand=this.value;document.getElementById('soldDetailArea').innerHTML=renderSoldDetailTableInner()" style="width:160px">
+        <div class="date-range">
+          <input type="date" id="soldDateFrom" onchange="statsFilter.dateFrom=this.value;document.getElementById('soldDetailArea').innerHTML=renderSoldDetailTableInner()">
+          <span class="sep">至</span>
+          <input type="date" id="soldDateTo" onchange="statsFilter.dateTo=this.value;document.getElementById('soldDetailArea').innerHTML=renderSoldDetailTableInner()">
         </div>
+        <button class="btn btn-outline btn-sm" onclick="statsFilter={brand:'',dateFrom:'',dateTo:''};navigateTo('statistics')">清除筛选</button>
       </div>
-    </div>`;
-  }
+      <div id="soldDetailArea">${renderSoldDetailTableInner()}</div>
+    </div>
+  </div>`;
+}
 
-  return html;
+function renderSoldDetailTableInner() {
+  const vBase = currentUser.role==='dealer' ? vehicles.filter(v=>v.dealerId===currentUser.id) : vehicles;
+  const soldVehicles = vBase.filter(v=>v.status==='sold');
+  let filtered = [...soldVehicles];
+  if (statsFilter.brand) filtered = filtered.filter(v=>(v.brand||'').includes(statsFilter.brand));
+  if (statsFilter.dateFrom) filtered = filtered.filter(v=>v.soldTime>=new Date(statsFilter.dateFrom).getTime());
+  if (statsFilter.dateTo) filtered = filtered.filter(v=>v.soldTime<=new Date(statsFilter.dateTo).getTime()+DAY);
+  filtered.sort((a,b)=>(b.soldTime||0)-(a.soldTime||0));
+
+  if (filtered.length===0) return '<div class="empty">无匹配的已售车辆记录</div>';
+
+  return `<div class="table-wrap"><table>
+    <thead><tr>
+      <th>车辆编号</th><th>车牌号</th><th>品牌型号</th><th>售出日期</th><th>成交金额</th>
+      <th>买家姓名</th><th>买家电话</th><th>归属车商</th><th>流转次数</th><th>新车牌</th>
+    </tr></thead>
+    <tbody>${filtered.map(v=>`
+      <tr>
+        <td>#${String(v.id).padStart(4,'0')}</td>
+        <td><strong>${v.plate}</strong></td>
+        <td>${v.brand}</td>
+        <td>${fmtDate(v.soldTime)}</td>
+        <td><span class="amount">¥${(v.soldAmount||0).toLocaleString()}</span></td>
+        <td>${v.buyerName||'-'}</td>
+        <td>${v.buyerPhone||'-'}</td>
+        <td>${getDealerName(v.dealerId)}</td>
+        <td>${v.flowCount}</td>
+        <td>${v.newPlate||'<span style="color:var(--text-muted)">未变更</span>'}</td>
+      </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function exportSoldDetail() {
+  showToast('模拟导出：已售车辆明细导出中（Excel格式）...', 'info');
+  setTimeout(()=>showToast('导出成功：已售车辆明细_'+new Date().toISOString().split('T')[0]+'.xlsx','success'), 1500);
 }
 
 // ===== PAGE: REPORTS =====
