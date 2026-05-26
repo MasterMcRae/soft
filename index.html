@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>二手车停车场交易管理系统</title>
+<style>
+/* ===== Reset & Variables ===== */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+:root {
+  /* Primary: #2C3E50 nav, #3498DB highlight */
+  --nav-bg: #2C3E50;
+  --nav-bg-rgb: 44,62,80;
+  --primary: #3498DB;
+  --primary-dark: #2980B9;
+  --primary-light: rgba(52,152,219,0.12);
+  --success: #2ECC71;
+  --success-light: rgba(46,204,113,0.12);
+  --warning: #F39C12;
+  --warning-light: rgba(243,156,18,0.12);
+  --danger: #E74C3C;
+  --danger-light: rgba(231,76,60,0.12);
+  --purple: #9B59B6;
+  --purple-light: rgba(155,89,182,0.12);
+  --teal: #1ABC9C;
+  --teal-light: rgba(26,188,156,0.12);
+  --bg: #F5F7FA;
+  --surface: #FFFFFF;
+  --border: #E8ECF0;
+  --text: #333333;
+  --text-secondary: #888888;
+  --text-muted: #AAAAAA;
+  --sidebar-width: 220px;
+  --header-height: 50px;
+  --radius: 8px;
+  --radius-sm: 4px;
+  --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-hover: 0 4px 12px rgba(0,0,0,0.10);
+  --shadow-lg: 0 6px 16px rgba(0,0,0,0.12);
+  --transition: all 0.2s ease;
+  --font-en: 'Roboto', 'Inter', 'Helvetica Neue', sans-serif;
+  --font-cn: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+}
+html { font-size: 14px; }
+body {
+  font-family: var(--font-cn);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--primary); text-decoration: none; }
+button { font-family: var(--font-cn); }
+
+/* ===== Login Page ===== */
+.login-page {
+  display:flex; align-items:center; justify-content:center;
+  min-height:100vh;
+  background: linear-gradient(135deg, #2C3E50 0%, #3498DB 60%, #2ECC71 100%);
+  position: relative; overflow: hidden;
+}
+.login-page::before {
+  content:''; position:absolute; top:-50%; left:-50%;
+  width:200%; height:200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+  animation: loginBg 20s linear infinite;
+}
+@keyframes loginBg { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.login-card {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 40px 36px;
+  width: 420px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  z-index: 1;
+}
+.login-card h1 {
+  font-size: 22px; font-weight: 700; text-align: center;
+  color: var(--text); margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+.login-card .subtitle {
+  text-align:center; color:var(--text-secondary);
+  font-size:13px; margin-bottom:28px;
+}
+.form-group { margin-bottom: 18px; }
+.form-group label {
+  display:block; font-size:12px; font-weight:600;
+  margin-bottom:6px; color:var(--text-secondary);
+  letter-spacing: 0.3px;
+}
+.form-group select, .form-group input {
+  width:100%; padding:10px 14px;
+  border:1px solid var(--border); border-radius:var(--radius-sm);
+  font-size:14px; transition:var(--transition); outline:none;
+  background: #FAFBFC; color: var(--text);
+  font-family: var(--font-cn);
+}
+.form-group select:focus, .form-group input:focus {
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px var(--primary-light);
+  background: #fff;
+}
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  padding:10px 20px; border:none; border-radius:var(--radius-sm);
+  font-size:14px; font-weight:600; cursor:pointer;
+  transition:var(--transition); font-family:var(--font-cn);
+  letter-spacing: 0.3px;
+}
+.btn-primary { background:var(--primary); color:#fff; width:100%; padding:12px; font-size:15px; }
+.btn-primary:hover { background:var(--primary-dark); transform:translateY(-1px); box-shadow:0 4px 12px rgba(52,152,219,0.3); }
+.btn-success { background:var(--success); color:#fff; }
+.btn-success:hover { background:#27ae60; }
+.btn-warning { background:linear-gradient(135deg, #F39C12, #E74C3C); color:#fff; }
+.btn-warning:hover { opacity:0.9; transform:translateY(-1px); }
+.btn-danger { background:var(--danger); color:#fff; }
+.btn-danger:hover { background:#c0392b; }
+.btn-outline { background:transparent; border:1px solid var(--border); color:var(--text); }
+.btn-outline:hover { background:#F0F2F5; }
+.btn-sm { padding:5px 12px; font-size:12px; }
+.btn-xs { padding:3px 10px; font-size:11px; border-radius:10px; }
+.btn:hover { opacity:.92; }
+.btn:active { transform:scale(0.98); }
+
+/* ===== App Layout ===== */
+.app { display:none; min-height:100vh; }
+.app.active { display:flex; }
+
+/* ===== Top Header ===== */
+.top-header {
+  height: var(--header-height);
+  background: var(--nav-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: none;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 24px;
+  position:fixed; top:0; left:0; right:0;
+  z-index:200;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.10);
+}
+.header-left { display:flex; align-items:center; gap:16px; }
+.header-logo {
+  display:flex; align-items:center; gap:10px;
+  color:#fff; font-size:15px; font-weight:700;
+  letter-spacing: 0.5px;
+}
+.header-logo .logo-icon {
+  width:30px; height:30px; background:var(--primary); border-radius:6px;
+  display:flex; align-items:center; justify-content:center; font-size:15px;
+}
+.header-tabs { display:flex; align-items:center; gap:0; margin-left:32px; height:100%; }
+.header-tab {
+  display:flex; align-items:center; height:var(--header-height);
+  padding:0 16px; color:#cbd5e1; font-size:13px; font-weight:500;
+  cursor:pointer; position:relative; transition:var(--transition);
+  letter-spacing: 0.3px;
+}
+.header-tab:hover { color:#fff; background:rgba(255,255,255,0.06); }
+.header-tab.active { color:#fff; font-weight:600; }
+.header-tab.active::after {
+  content:''; position:absolute; bottom:0; left:16px; right:16px;
+  height:2px; background:var(--danger); border-radius:1px;
+}
+.header-right { display:flex; align-items:center; gap:16px; }
+.header-search {
+  background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15);
+  border-radius:var(--radius-sm); padding:5px 12px; color:#fff;
+  font-size:12px; width:180px; outline:none; transition:var(--transition);
+  font-family:var(--font-cn);
+}
+.header-search::placeholder { color:rgba(255,255,255,0.5); }
+.header-search:focus { background:rgba(255,255,255,0.18); border-color:rgba(255,255,255,0.3); width:220px; }
+.header-icon {
+  width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.08);
+  display:flex; align-items:center; justify-content:center;
+  color:#cbd5e1; cursor:pointer; transition:var(--transition); font-size:14px;
+}
+.header-icon:hover { background:rgba(255,255,255,0.15); color:#fff; }
+.header-avatar {
+  width:30px; height:30px; border-radius:50%; background:var(--primary);
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:12px; font-weight:700; cursor:pointer;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  width:var(--sidebar-width); background:var(--surface);
+  color:var(--text);
+  position:fixed; top:var(--header-height); left:0; bottom:0;
+  overflow-y:auto; z-index:150;
+  border-right:1px solid var(--border);
+  display:flex; flex-direction:column;
+  transition: width 0.3s ease;
+}
+.sidebar.collapsed { width:60px; }
+.sidebar-user {
+  padding:14px 20px; border-bottom:1px solid var(--border);
+  font-size:13px; color:var(--text);
+}
+.sidebar-user .user-name { font-weight:600; font-size:13px; }
+.sidebar-user .role-badge {
+  display:inline-block; padding:2px 8px; border-radius:10px;
+  font-size:11px; font-weight:600; margin-top:4px;
+}
+.role-badge.admin { background:#fef3c7; color:#92400e; }
+.role-badge.operator { background:#dbeafe; color:#1e40af; }
+.role-badge.dealer { background:#d1fae5; color:#065f46; }
+.sidebar-nav { flex:1; padding:8px 0; overflow-y:auto; }
+.sidebar-nav .nav-section {
+  padding:12px 20px 4px; font-size:11px;
+  text-transform:uppercase; color:var(--text-muted);
+  letter-spacing:0.8px; font-weight:600;
+}
+.sidebar-nav a {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 20px; color:var(--text-secondary);
+  font-size:13px; transition:var(--transition);
+  border-left:3px solid transparent;
+  font-weight:500;
+}
+.sidebar-nav a:hover {
+  background:#F5F7FA; color:var(--text);
+}
+.sidebar-nav a.active {
+  background:#F5F7FA; color:var(--primary);
+  border-left-color:var(--primary); font-weight:600;
+}
+.sidebar-nav a .nav-icon { width:18px; text-align:center; font-size:15px; flex-shrink:0; }
+.sidebar.collapsed .sidebar-user span,
+.sidebar.collapsed .nav-section,
+.sidebar.collapsed .sidebar-nav a span { display:none; }
+.sidebar.collapsed .sidebar-nav a { justify-content:center; padding:10px 0; }
+.sidebar-footer {
+  padding:12px 20px; border-top:1px solid var(--border);
+  display:flex; align-items:center; gap:8px;
+}
+.sidebar-footer a { color:var(--text-secondary); font-size:12px; cursor:pointer; }
+.sidebar-footer a:hover { color:var(--danger); }
+
+/* ===== Main Content ===== */
+.main {
+  flex:1; margin-left:var(--sidebar-width); margin-top:var(--header-height);
+  display:flex; flex-direction:column; min-height:calc(100vh - var(--header-height));
+  transition: margin-left 0.3s ease;
+}
+.sidebar.collapsed ~ .main { margin-left:60px; }
+.content { padding:20px 24px 32px; flex:1; }
+
+/* ===== Breadcrumb ===== */
+.breadcrumb {
+  display:flex; align-items:center; gap:6px;
+  font-size:12px; color:var(--text-muted); margin-bottom:16px;
+}
+.breadcrumb a { color:var(--primary); }
+.breadcrumb .sep { color:var(--text-muted); }
+
+/* ===== Page Title ===== */
+.page-header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:20px;
+}
+.page-title { font-size:18px; font-weight:700; color:var(--text); letter-spacing:0.3px; }
+.page-subtitle { font-size:12px; color:var(--text-secondary); margin-top:2px; }
+
+/* ===== Stat Cards (Gradient Top Cards) ===== */
+.stat-cards {
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+  gap:16px; margin-bottom:20px;
+}
+.stat-card {
+  border-radius:var(--radius); padding:0;
+  box-shadow:var(--shadow); transition:var(--transition);
+  overflow:hidden; position:relative;
+  background:var(--surface);
+}
+.stat-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-hover); }
+.stat-card .card-gradient {
+  height:4px; border-radius:var(--radius) var(--radius) 0 0;
+}
+.stat-card .card-body {
+  padding:16px 18px; display:flex; align-items:center; gap:14px;
+}
+.stat-card .stat-icon-wrap {
+  width:44px; height:44px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; flex-shrink:0;
+}
+.stat-card .stat-info { flex:1; }
+.stat-card .stat-label { font-size:12px; color:var(--text-secondary); font-weight:500; margin-bottom:2px; }
+.stat-card .stat-value { font-size:26px; font-weight:700; color:var(--text); line-height:1.2; }
+.stat-card .stat-trend { font-size:11px; margin-top:2px; }
+.stat-trend.up { color:var(--success); }
+.stat-trend.down { color:var(--danger); }
+
+/* Gradient variants */
+.grad-orange  { background:linear-gradient(90deg, #F39C12, #E74C3C); }
+.grad-blue     { background:linear-gradient(90deg, #3498DB, #2ECC71); }
+.grad-green    { background:linear-gradient(90deg, #1ABC9C, #3498DB); }
+.grad-red      { background:linear-gradient(90deg, #E74C3C, #F5B041); }
+.grad-purple   { background:linear-gradient(90deg, #9B59B6, #3498DB); }
+.grad-teal     { background:linear-gradient(90deg, #1ABC9C, #2ECC71); }
+.icon-orange   { background:var(--warning-light); color:#F39C12; }
+.icon-blue     { background:var(--primary-light); color:var(--primary); }
+.icon-green    { background:var(--success-light); color:var(--success); }
+.icon-red      { background:var(--danger-light); color:var(--danger); }
+.icon-purple   { background:var(--purple-light); color:var(--purple); }
+.icon-teal     { background:var(--teal-light); color:var(--teal); }
+
+/* ===== Panel (Card Container) ===== */
+.panel {
+  background:var(--surface); border-radius:var(--radius);
+  box-shadow:var(--shadow); margin-bottom:20px;
+  overflow:hidden;
+}
+.panel-header {
+  padding:14px 20px;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  background:#FAFBFC;
+}
+.panel-header h3 {
+  font-size:14px; font-weight:600; color:var(--text);
+  display:flex; align-items:center; gap:8px;
+}
+.panel-header h3::before {
+  content:''; display:inline-block; width:3px; height:14px;
+  background:var(--primary); border-radius:2px;
+}
+.panel-body { padding:16px 20px; }
+.panel-body.no-padding { padding:0; }
+
+/* ===== Table ===== */
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+table th {
+  background:#F8F9FA; padding:10px 14px; text-align:left;
+  font-weight:600; color:var(--text-secondary);
+  border-bottom:2px solid var(--border);
+  white-space:nowrap; font-size:12px; letter-spacing:0.3px;
+}
+table td { padding:10px 14px; border-bottom:1px solid #F0F2F5; vertical-align:middle; }
+table tbody tr { transition:background 0.15s; }
+table tbody tr:hover { background:#F8F9FA; }
+table tbody tr:last-child td { border-bottom:none; }
+
+/* Badges */
+.badge {
+  display:inline-block; padding:2px 10px; border-radius:10px;
+  font-size:11px; font-weight:600; letter-spacing:0.2px;
+}
+.badge.new      { background:#dbeafe; color:#1e40af; }
+.badge.forsale  { background:#d1fae5; color:#065f46; }
+.badge.sold     { background:#e5e7eb; color:#374151; }
+.badge.external { background:#fef3c7; color:#92400e; }
+.badge.pending  { background:#fce7f3; color:#9d174d; }
+.badge.online   { background:var(--success-light); color:var(--success); }
+.badge.offline  { background:var(--danger-light); color:var(--danger); }
+
+/* ===== Filters ===== */
+.filters {
+  display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+  margin-bottom:16px;
+}
+.filters input, .filters select {
+  padding:7px 12px; border:1px solid var(--border); border-radius:var(--radius-sm);
+  font-size:13px; outline:none; background:#FAFBFC;
+  color:var(--text); font-family:var(--font-cn);
+  transition:var(--transition);
+}
+.filters input:focus, .filters select:focus {
+  border-color:var(--primary); box-shadow:0 0 0 2px var(--primary-light); background:#fff;
+}
+
+/* ===== Modal ===== */
+.modal-overlay {
+  display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+  background:rgba(0,0,0,0.45); z-index:300;
+  align-items:center; justify-content:center;
+  backdrop-filter: blur(2px);
+}
+.modal-overlay.active { display:flex; }
+.modal {
+  background:var(--surface); border-radius:12px; padding:28px;
+  width:500px; max-width:92vw; max-height:82vh; overflow-y:auto;
+  box-shadow:var(--shadow-lg); animation:modalIn 0.25s ease;
+}
+@keyframes modalIn { from { transform:translateY(20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+.modal h3 { font-size:17px; font-weight:700; margin-bottom:20px; color:var(--text); }
+.modal .form-group { margin-bottom:16px; }
+.modal .form-group label {
+  display:block; font-size:12px; font-weight:600;
+  margin-bottom:5px; color:var(--text-secondary); letter-spacing:0.3px;
+}
+.modal .form-group input, .modal .form-group select {
+  width:100%; padding:9px 12px; border:1px solid var(--border);
+  border-radius:var(--radius-sm); font-size:14px; outline:none;
+  font-family:var(--font-cn); transition:var(--transition);
+  background:#FAFBFC; color:var(--text);
+}
+.modal .form-group input:focus, .modal .form-group select:focus {
+  border-color:var(--primary); box-shadow:0 0 0 3px var(--primary-light); background:#fff;
+}
+.modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; }
+
+/* ===== Toast ===== */
+.toast {
+  position:fixed; top:60px; right:20px; padding:11px 20px;
+  border-radius:var(--radius-sm); color:#fff; font-size:13px;
+  z-index:400; animation:toastIn 0.3s ease;
+  box-shadow:var(--shadow-lg); font-weight:500;
+}
+.toast.success { background:var(--success); }
+.toast.error   { background:var(--danger); }
+.toast.info    { background:var(--primary); }
+.toast.warning { background:var(--warning); color:#fff; }
+@keyframes toastIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+
+/* ===== Chart Bars ===== */
+.chart-section { margin-bottom:20px; }
+.chart-row {
+  display:grid; grid-template-columns:1fr 1fr; gap:16px;
+}
+@media (max-width:768px) { .chart-row { grid-template-columns:1fr; } }
+.chart-card { background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px 20px; }
+.chart-card h4 { font-size:13px; font-weight:600; color:var(--text); margin-bottom:12px; }
+.chart-bar-wrap { display:flex; align-items:flex-end; gap:12px; height:180px; padding:8px 0; }
+.chart-bar { flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; height:100%; justify-content:flex-end; }
+.chart-bar .bar {
+  width:100%; max-width:50px; border-radius:4px 4px 0 0;
+  transition:height 0.4s ease; min-height:4px;
+}
+.chart-bar .bar-val { font-size:11px; font-weight:700; color:var(--text-secondary); }
+.chart-bar .bar-label { font-size:10px; color:var(--text-muted); text-align:center; }
+
+/* ===== Empty State ===== */
+.empty {
+  text-align:center; padding:48px 20px; color:var(--text-muted);
+  font-size:13px;
+}
+.empty::before { content:'📭'; display:block; font-size:36px; margin-bottom:8px; }
+
+/* ===== Quick Actions ===== */
+.quick-actions { display:flex; gap:10px; flex-wrap:wrap; }
+.quick-actions .btn { box-shadow:var(--shadow); }
+
+/* ===== Responsive ===== */
+@media (max-width:900px) {
+  .sidebar { width:60px; }
+  .sidebar .sidebar-user span, .sidebar .nav-section, .sidebar-nav a span { display:none; }
+  .sidebar-nav a { justify-content:center; padding:10px 0; }
+  .main { margin-left:60px; }
+  .stat-cards { grid-template-columns:1fr 1fr; }
+  .header-tabs { display:none; }
+}
+@media (max-width:600px) {
+  .stat-cards { grid-template-columns:1fr; }
+  .content { padding:12px 10px; }
+  .modal { padding:20px 16px; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:#ccc; border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:#aaa; }
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN PAGE ===== -->
+<div id="loginPage" class="login-page">
+  <div class="login-card">
+    <h1>🚗 二手车停车场交易管理系统</h1>
+    <p class="subtitle">2026版 · 企业级数据管理平台</p>
+    <div class="form-group">
+      <label>选择角色</label>
+      <select id="loginRole">
+        <option value="admin">超级管理员</option>
+        <option value="operator">岗亭操作员</option>
+        <option value="dealer1">车商 - 鑫达二手车 (A区)</option>
+        <option value="dealer2">车商 - 永信车行 (A区)</option>
+        <option value="dealer3">车商 - 诚信二手车 (B区)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>密码（演示系统任意输入）</label>
+      <input type="password" id="loginPwd" value="123456" placeholder="输入任意密码">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">登 录 系 统</button>
+    <p style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:16px;">演示系统 · 数据实时模拟 · 支持角色切换体验</p>
+  </div>
+</div>
+
+<!-- ===== APP LAYOUT ===== -->
+<div id="app" class="app">
+  <!-- Top Header -->
+  <header class="top-header">
+    <div class="header-left">
+      <div class="header-logo">
+        <div class="logo-icon">🚗</div>
+        <span>交易管理系统</span>
+      </div>
+      <nav class="header-tabs" id="headerTabs"></nav>
+    </div>
+    <div class="header-right">
+      <input class="header-search" placeholder="搜索车牌 / 车商 / 品牌..." onfocus="this.select()">
+      <div class="header-icon" title="通知">🔔</div>
+      <div class="header-icon" title="设置">⚙️</div>
+      <div class="header-avatar" id="headerAvatar" title="个人中心"></div>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-user">
+      <div class="user-name" id="sidebarUserName">管理员</div>
+      <div class="role-badge admin" id="sidebarRoleBadge">超级管理员</div>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav"></nav>
+    <div class="sidebar-footer">
+      <a onclick="doLogout()">🚪 退出登录</a>
+      <a onclick="toggleSidebar()" style="margin-left:auto" title="收起菜单">◀</a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+    <div class="content" id="pageContent">
+      <!-- breadcrumb + page rendered here -->
+    </div>
+  </main>
+</div>
+
+<!-- ===== MODAL ===== -->
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalContent"></div></div>
+<div id="toastContainer"></div>
+
+<script>
+// ===== DATA STORE =====
+const now = Date.now();
+const DAY = 86400000;
+
+const dealers = [
+  { id:'dealer1', name:'鑫达二手车', zone:'A区', phone:'13800001111', status:'active', regDate:'2024-03-15' },
+  { id:'dealer2', name:'永信车行', zone:'A区', phone:'13800002222', status:'active', regDate:'2024-06-20' },
+  { id:'dealer3', name:'诚信二手车', zone:'B区', phone:'13800003333', status:'active', regDate:'2024-09-01' },
+  { id:'dealer4', name:'宏达汽贸', zone:'B区', phone:'13800004444', status:'inactive', regDate:'2025-01-10' },
+  { id:'dealer5', name:'宝驰名车', zone:'A区', phone:'13800005555', status:'active', regDate:'2025-03-05' },
+];
+
+let vehicles = [
+  { id:1, plate:'京A12345', type:'new', dealerId:null, status:'pending', brand:'丰田凯美瑞', color:'白色', entryTime:now-DAY*2, entryZone:'A区', flowCount:0 },
+  { id:2, plate:'京B67890', type:'new', dealerId:null, status:'pending', brand:'本田雅阁', color:'黑色', entryTime:now-DAY*1.5, entryZone:'B区', flowCount:0 },
+  { id:3, plate:'京C11111', type:'new', dealerId:null, status:'pending', brand:'大众迈腾', color:'银色', entryTime:now-DAY, entryZone:'A区', flowCount:0 },
+  { id:4, plate:'京D22222', type:'new', dealerId:null, status:'pending', brand:'宝马3系', color:'蓝色', entryTime:now-DAY*0.8, entryZone:'A区', flowCount:0 },
+  { id:5, plate:'京E33333', type:'new', dealerId:null, status:'pending', brand:'奥迪A4L', color:'灰色', entryTime:now-DAY*0.5, entryZone:'B区', flowCount:0 },
+  { id:6, plate:'京F44444', type:'forsale', dealerId:'dealer1', status:'forsale', brand:'奔驰C级', color:'白色', entryTime:now-DAY*10, entryZone:'A区', flowCount:15 },
+  { id:7, plate:'京G55555', type:'forsale', dealerId:'dealer1', status:'forsale', brand:'日产天籁', color:'黑色', entryTime:now-DAY*8, entryZone:'A区', flowCount:8 },
+  { id:8, plate:'京H66666', type:'forsale', dealerId:'dealer2', status:'forsale', brand:'特斯拉Model3', color:'红色', entryTime:now-DAY*6, entryZone:'B区', flowCount:22 },
+  { id:9, plate:'京I77777', type:'forsale', dealerId:'dealer2', status:'forsale', brand:'福特蒙迪欧', color:'棕色', entryTime:now-DAY*5, entryZone:'B区', flowCount:5 },
+  { id:10, plate:'京J88888', type:'forsale', dealerId:'dealer3', status:'forsale', brand:'比亚迪汉', color:'白色', entryTime:now-DAY*12, entryZone:'A区', flowCount:18 },
+  { id:11, plate:'京K99999', type:'forsale', dealerId:'dealer3', status:'sold', brand:'雷克萨斯ES', color:'金色', entryTime:now-DAY*20, entryZone:'B区', flowCount:30, soldTime:now-DAY*3, oldPlate:null, newPlate:null },
+  { id:12, plate:'京L00001', type:'forsale', dealerId:'dealer1', status:'sold', brand:'沃尔沃S60', color:'蓝色', entryTime:now-DAY*25, entryZone:'A区', flowCount:12, soldTime:now-DAY*1, oldPlate:null, newPlate:'京M12345' },
+  { id:13, plate:'京N12345', type:'external', dealerId:null, status:'external', brand:'社会车辆', color:'-', entryTime:now-DAY*0.1, entryZone:'A区', flowCount:0 },
+  { id:14, plate:'京O67890', type:'external', dealerId:null, status:'external', brand:'社会车辆', color:'-', entryTime:now-DAY*0.2, entryZone:'B区', flowCount:0 },
+  { id:15, plate:'京P11223', type:'new', dealerId:null, status:'pending', brand:'雪佛兰迈锐宝', color:'红色', entryTime:now-DAY*0.3, entryZone:'A区', flowCount:0 },
+];
+
+let entryRecords = [];
+let vehicleIdCounter = 16;
+let operationLogs = [];
+
+function initData() {
+  vehicles.filter(v=>v.status==='forsale'||v.status==='sold').forEach(v=>{
+    for(let i=0;i<v.flowCount;i++){
+      const t = v.entryTime + Math.random()*(now-v.entryTime);
+      entryRecords.push({
+        id:entryRecords.length+1, plate:v.plate, vehicleId:v.id, dealerId:v.dealerId,
+        time:t, direction:Math.random()>.5?'进场':'出场',
+        zone:['A区','B区'][Math.floor(Math.random()*2)],
+        deviceId:`CAM-${['A1','A2','B1','B2'][Math.floor(Math.random()*4)]}`
+      });
+    }
+  });
+  entryRecords.sort((a,b)=>b.time-a.time);
+
+  const logTemplates = [
+    { action:'车辆绑定', detail:'车牌 [京F44444] 绑定至车商 [鑫达二手车]' },
+    { action:'车辆绑定', detail:'车牌 [京G55555] 绑定至车商 [鑫达二手车]' },
+    { action:'车辆绑定', detail:'车牌 [京H66666] 绑定至车商 [永信车行]' },
+    { action:'车辆绑定', detail:'车牌 [京I77777] 绑定至车商 [永信车行]' },
+    { action:'车辆绑定', detail:'车牌 [京J88888] 绑定至车商 [诚信二手车]' },
+    { action:'车辆售出', detail:'车牌 [京K99999] 状态变更为已售，所属车商 [诚信二手车]' },
+    { action:'车牌变更', detail:'车牌 [京L00001] 旧牌 [京L00001] → 新牌 [京M12345]，车商 [鑫达二手车]' },
+    { action:'车辆售出', detail:'车牌 [京L00001] 状态变更为已售，所属车商 [鑫达二手车]' },
+    { action:'新车进场', detail:'车牌 [京A12345] 判定为新进车辆，进入待绑定列表' },
+    { action:'新车进场', detail:'车牌 [京B67890] 判定为新进车辆，进入待绑定列表' },
+    { action:'新车进场', detail:'车牌 [京C11111] 判定为新进车辆，进入待绑定列表' },
+  ];
+  logTemplates.forEach((t,i)=>{
+    operationLogs.push({
+      id:i+1, action:t.action, detail:t.detail,
+      operator:'系统管理员', time:now-(i+1)*3600000*2
+    });
+  });
+}
+initData();
+
+// ===== APP STATE =====
+let currentUser = null;
+let currentPage = 'dashboard';
+let vehicleFilter = { search:'', status:'', zone:'' };
+
+const navConfig = {
+  admin: [
+    { section:'核心业务', items:[
+      { id:'dashboard', label:'工作台', icon:'📊' },
+      { id:'entry', label:'车辆出入管理', icon:'🚦' },
+      { id:'pending', label:'待绑定车辆', icon:'📋' },
+      { id:'forsale', label:'在售车辆管理', icon:'🚗' },
+      { id:'transaction', label:'交易与车牌变更', icon:'💼' },
+    ]},
+    { section:'管理功能', items:[
+      { id:'dealers', label:'车商管理', icon:'👥' },
+      { id:'statistics', label:'业绩统计', icon:'📈' },
+      { id:'reports', label:'数据报表', icon:'📑' },
+      { id:'logs', label:'操作日志', icon:'📝' },
+    ]}
+  ],
+  operator: [
+    { section:'岗亭操作', items:[
+      { id:'dashboard', label:'工作台', icon:'📊' },
+      { id:'entry', label:'车辆出入登记', icon:'🚦' },
+      { id:'logs', label:'操作日志', icon:'📝' },
+    ]}
+  ],
+  dealer: [
+    { section:'车商工作台', items:[
+      { id:'dashboard', label:'工作台', icon:'📊' },
+      { id:'pending', label:'待绑定车辆', icon:'📋' },
+      { id:'forsale', label:'我的在售车辆', icon:'🚗' },
+      { id:'statistics', label:'我的业绩', icon:'📈' },
+    ]}
+  ],
+};
+
+const headerTabConfig = {
+  admin:      ['dashboard','entry','pending','forsale','transaction','dealers','statistics','reports','logs'],
+  operator:   ['dashboard','entry','logs'],
+  dealer:     ['dashboard','pending','forsale','statistics'],
+};
+
+// ===== LOGIN =====
+function doLogin() {
+  const role = document.getElementById('loginRole').value;
+  let user = { role:'admin', id:'admin', name:'超级管理员', permissions:'all' };
+  if (role === 'operator') {
+    user = { role:'operator', id:'operator', name:'岗亭操作员-张三', permissions:['view','entry'] };
+  } else if (role.startsWith('dealer')) {
+    const d = dealers.find(d=>d.id===role);
+    user = { role:'dealer', id:d.id, name:d.name, zone:d.zone, permissions:['view_own','bind','stats_own'] };
+  }
+  currentUser = user;
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('app').classList.add('active');
+  document.getElementById('sidebarUserName').textContent = user.name;
+  const badge = document.getElementById('sidebarRoleBadge');
+  badge.textContent = user.role==='admin'?'超级管理员':user.role==='operator'?'岗亭操作员':'车商';
+  badge.className = 'role-badge '+(user.role==='admin'?'admin':user.role==='operator'?'operator':'dealer');
+  document.getElementById('headerAvatar').textContent = user.name.charAt(0);
+  renderHeaderTabs();
+  renderNav();
+  navigateTo('dashboard');
+  updateTime();
+  setInterval(updateTime, 30000);
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('loginPage').style.display = 'flex';
+}
+
+function updateTime() {
+  const t = new Date();
+  // shown in page header if needed
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
+
+// ===== HEADER TABS =====
+function renderHeaderTabs() {
+  const container = document.getElementById('headerTabs');
+  const tabs = headerTabConfig[currentUser.role] || headerTabConfig.admin;
+  const labels = {
+    dashboard:'首页', entry:'出入管理', pending:'待绑定', forsale:'在售车辆',
+    transaction:'交易管理', dealers:'车商管理', statistics:'业绩统计', reports:'数据报表', logs:'操作日志'
+  };
+  container.innerHTML = tabs.map(t=>
+    `<div class="header-tab ${currentPage===t?'active':''}" onclick="navigateTo('${t}')">${labels[t]||t}</div>`
+  ).join('');
+}
+
+// ===== NAVIGATION =====
+function renderNav() {
+  const nav = document.getElementById('sidebarNav');
+  const cfg = navConfig[currentUser.role] || navConfig.admin;
+  nav.innerHTML = cfg.map(s=>`
+    <div class="nav-section">${s.section}</div>
+    ${s.items.map(i=>`<a href="javascript:void(0)" class="${currentPage===i.id?'active':''}" onclick="navigateTo('${i.id}')">
+      <span class="nav-icon">${i.icon}</span><span>${i.label}</span>
+    </a>`).join('')}
+  `).join('');
+}
+
+function navigateTo(page) {
+  currentPage = page;
+  renderHeaderTabs();
+  renderNav();
+  const content = document.getElementById('pageContent');
+  const pageLabels = {
+    dashboard:'工作台',entry:'车辆出入管理',pending:'待绑定车辆',forsale:'在售车辆管理',
+    transaction:'交易与车牌变更',dealers:'车商管理',statistics:'业绩统计',reports:'数据报表',logs:'操作日志'
+  };
+  const breadcrumb = `<div class="breadcrumb"><a onclick="navigateTo('dashboard')">首页</a><span class="sep">/</span><span>${pageLabels[page]||''}</span></div>`;
+  const pageHeader = `<div class="page-header"><div><div class="page-title">${pageLabels[page]||'工作台'}</div><div class="page-subtitle" id="pageSubtitle"></div></div></div>`;
+  let body = '';
+  switch(page) {
+    case 'dashboard': body = renderDashboard(); break;
+    case 'entry': body = renderEntry(); break;
+    case 'pending': body = renderPending(); break;
+    case 'forsale': body = renderForSale(); break;
+    case 'transaction': body = renderTransaction(); break;
+    case 'dealers': body = renderDealers(); break;
+    case 'statistics': body = renderStatistics(); break;
+    case 'reports': body = renderReports(); break;
+    case 'logs': body = renderLogs(); break;
+  }
+  content.innerHTML = breadcrumb + pageHeader + body;
+  window.scrollTo(0,0);
+}
+
+// ===== UTILITY =====
+function fmtTime(ts) {
+  if (!ts) return '-';
+  const d=new Date(ts);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function fmtDate(ts) {
+  if (!ts) return '-';
+  const d=new Date(ts);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function showToast(msg, type='info') {
+  const tc=document.getElementById('toastContainer');
+  const el=document.createElement('div');
+  el.className='toast '+type; el.textContent=msg;
+  tc.appendChild(el);
+  setTimeout(()=>el.remove(),2500);
+}
+function openModal(title, bodyHtml) {
+  document.getElementById('modalContent').innerHTML = `<h3>${title}</h3>${bodyHtml}`;
+  document.getElementById('modalOverlay').classList.add('active');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+function getDealerName(id) { const d=dealers.find(x=>x.id===id); return d?d.name:'未绑定'; }
+function getStatusBadge(s) {
+  const map = {
+    pending:'<span class="badge pending">待绑定</span>',
+    forsale:'<span class="badge forsale">在售</span>',
+    sold:'<span class="badge sold">已售</span>',
+    external:'<span class="badge external">外来</span>'
+  };
+  return map[s]||s;
+}
+function filterVehicles(arr) {
+  let result = arr;
+  if (currentUser.role==='dealer') result = result.filter(v=>v.dealerId===currentUser.id);
+  if (vehicleFilter.search) result = result.filter(v=>v.plate.toUpperCase().includes(vehicleFilter.search.toUpperCase())||(v.brand||'').includes(vehicleFilter.search));
+  if (vehicleFilter) result = result.filter(v=>!vehicleFilter.status||v.status===vehicleFilter.status);
+  if (vehicleFilter.zone) result = result.filter(v=>v.entryZone===vehicleFilter.zone);
+  return result;
+}
+
+// ===== PAGE: DASHBOARD =====
+function renderDashboard() {
+  const isDealer = currentUser.role==='dealer';
+  const vAll = isDealer ? vehicles.filter(v=>v.dealerId===currentUser.id) : vehicles;
+  const pending = vAll.filter(v=>v.status==='pending').length;
+  const forSale = vAll.filter(v=>v.status==='forsale').length;
+  const sold = vAll.filter(v=>v.status==='sold').length;
+  const external = vAll.filter(v=>v.status==='external').length;
+  const totalFlow = vAll.filter(v=>v.status==='forsale'||v.status==='sold').reduce((s,v)=>s+v.flowCount,0);
+  const logsToday = operationLogs.filter(l=>l.time>now-DAY).length;
+
+  let html = `<div class="stat-cards">`;
+  html += `
+    <div class="stat-card"><div class="card-gradient grad-orange"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-orange">🆕</div>
+      <div class="stat-info"><div class="stat-label">待绑定车辆</div><div class="stat-value">${pending}</div></div>
+    </div></div>
+    <div class="stat-card"><div class="card-gradient grad-green"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-green">🚗</div>
+      <div class="stat-info"><div class="stat-label">在售车辆</div><div class="stat-value">${forSale}</div></div>
+    </div></div>
+    <div class="stat-card"><div class="card-gradient grad-red"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-red">💰</div>
+      <div class="stat-info"><div class="stat-label">已售车辆</div><div class="stat-value">${sold}</div></div>
+    </div></div>
+    <div class="stat-card"><div class="card-gradient grad-blue"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-blue">🔄</div>
+      <div class="stat-info"><div class="stat-label">场内总流转</div><div class="stat-value">${totalFlow}</div></div>
+    </div></div>`;
+  if (!isDealer) {
+    html += `
+    <div class="stat-card"><div class="card-gradient grad-purple"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-purple">🚙</div>
+      <div class="stat-info"><div class="stat-label">外来车辆</div><div class="stat-value">${external}</div></div>
+    </div></div>
+    <div class="stat-card"><div class="card-gradient grad-teal"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-teal">📝</div>
+      <div class="stat-info"><div class="stat-label">今日操作日志</div><div class="stat-value">${logsToday}</div></div>
+    </div></div>`;
+  }
+  html += `</div>`;
+
+  // Recent entries panel
+  const recentEntries = entryRecords.slice(0,8);
+  html += `
+  <div class="panel">
+    <div class="panel-header"><h3>最近出入记录</h3><span style="font-size:12px;color:var(--text-muted)">共 ${entryRecords.length} 条</span></div>
+    <div class="panel-body no-padding">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>车牌</th><th>方向</th><th>时间</th><th>分区</th><th>设备</th><th>归属车商</th></tr></thead>
+          <tbody>${recentEntries.map(e=>`
+            <tr>
+              <td><strong>${e.plate}</strong></td>
+              <td>${e.direction==='进场'?'<span style="color:var(--success);font-weight:600">▶ 进场</span>':'<span style="color:var(--danger);font-weight:600">◀ 出场</span>'}</td>
+              <td>${fmtTime(e.time)}</td><td>${e.zone}</td><td>${e.deviceId}</td>
+              <td>${e.dealerId?getDealerName(e.dealerId):'-'}</td>
+            </tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+
+  // Quick actions
+  html += `<div class="panel"><div class="panel-header"><h3>快捷操作</h3></div><div class="panel-body">`;
+  if (!isDealer) {
+    html += `<div class="quick-actions">
+      <button class="btn btn-primary" onclick="navigateTo('entry')">🚦 车辆出入登记</button>
+      <button class="btn btn-warning" onclick="navigateTo('pending')">📋 处理待绑定</button>
+      <button class="btn btn-success" onclick="navigateTo('transaction')">💼 交易处理</button>
+      <button class="btn btn-outline" onclick="navigateTo('statistics')">📈 业绩统计</button>
+    </div>`;
+  } else {
+    html += `<div class="quick-actions">
+      <button class="btn btn-warning" onclick="navigateTo('pending')">📋 绑定新进车辆</button>
+      <button class="btn btn-primary" onclick="navigateTo('forsale')">🚗 我的在售车辆</button>
+      <button class="btn btn-outline" onclick="navigateTo('statistics')">📈 我的业绩</button>
+    </div>`;
+  }
+  html += `</div></div>`;
+
+  return html;
+}
+
+// ===== PAGE: ENTRY MANAGEMENT =====
+function renderEntry() {
+  if (currentUser.role==='dealer') return '<div class="panel"><div class="panel-body empty">您无权访问此模块</div></div>';
+
+  const isOperator = currentUser.role==='operator';
+  let html = '';
+
+  // Simulated device capture card
+  html += `<div class="panel">
+    <div class="panel-header"><h3>📷 模拟车牌识别录入</h3></div>
+    <div class="panel-body">
+      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">模拟A/B区车牌识别设备实时抓拍，系统自动进行数据清洗、分类判定（新进/在售/外来）。</p>
+      <div class="filters">
+        <input type="text" placeholder="输入车牌号（如 京A12345）" id="entryPlate" style="width:220px" onkeypress="if(event.key==='Enter')simulateEntry()">
+        <select id="entryDirection"><option value="进场">进场</option><option value="出场">出场</option></select>
+        <select id="entryZone"><option value="A区">A区</option><option value="B区">B区</option></select>`;
+  if (!isOperator) {
+    html += `<select id="entryDevice"><option value="CAM-A1">设备 CAM-A1</option><option value="CAM-A2">设备 CAM-A2</option><option value="CAM-B1">设备 CAM-B1</option><option value="CAM-B2">设备 CAM-B2</option></select>`;
+  }
+  html += `
+        <button class="btn btn-primary" onclick="simulateEntry()">模拟抓拍录入</button>`;
+  if (!isOperator) {
+    html += `<button class="btn btn-outline btn-sm" onclick="document.getElementById('entryPlate').value='京Q'+(10000+Math.floor(Math.random()*90000));simulateEntry()">🎲 随机新车牌</button>`;
+  }
+  html += `</div><div id="entryResult" style="margin-top:12px"></div>
+    </div>
+  </div>`;
+
+  // Recent records
+  html += `<div class="panel">
+    <div class="panel-header"><h3>出入记录列表</h3><span style="font-size:12px;color:var(--text-muted)">最近 20 条</span></div>
+    <div class="panel-body no-padding">${renderEntryTable()}</div>
+  </div>`;
+
+  return html;
+}
+
+function renderEntryTable() {
+  const rows = entryRecords.slice(0,20);
+  if (rows.length===0) return '<div class="empty">暂无出入记录</div>';
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>车牌</th><th>车辆类型</th><th>方向</th><th>时间</th><th>分区</th><th>设备</th><th>归属车商</th></tr></thead>
+    <tbody>${rows.map(e=>{
+      const v = vehicles.find(x=>x.plate===e.plate);
+      const typeMap = {new:'新进',forsale:'在售',sold:'已售',external:'外来'};
+      const typeLabel = v?typeMap[v.status]||'-':'未知';
+      return `<tr>
+        <td><strong>${e.plate}</strong></td>
+        <td>${getStatusBadge(v?v.status:'external')}</td>
+        <td>${e.direction==='进场'?'<span style="color:var(--success);font-weight:600">▶ 进场</span>':'<span style="color:var(--danger);font-weight:600">◀ 出场</span>'}</td>
+        <td>${fmtTime(e.time)}</td><td>${e.zone}</td><td>${e.deviceId||'-'}</td>
+        <td>${e.dealerId?getDealerName(e.dealerId):'-'}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+
+function simulateEntry() {
+  const plate = (document.getElementById('entryPlate')?.value||'').trim().toUpperCase();
+  if (!plate) { showToast('请输入车牌号','error'); return; }
+  const direction = document.getElementById('entryDirection')?.value||'进场';
+  const zone = document.getElementById('entryZone')?.value||'A区';
+  const deviceId = document.getElementById('entryDevice')?.value||`CAM-${zone==='A区'?'A1':'B1'}`;
+
+  let v = vehicles.find(x=>x.plate===plate);
+  let resultHtml = '';
+
+  if (!v) {
+    v = {
+      id:vehicleIdCounter++, plate, type:'new', dealerId:null, status:'pending',
+      brand:'待确认', color:'-', entryTime:Date.now(), entryZone:zone, flowCount:0
+    };
+    vehicles.push(v);
+    operationLogs.unshift({
+      id:operationLogs.length+1, action:'新车进场',
+      detail:`车牌 [${plate}] 判定为新进车辆，归入待绑定列表，分区${zone}`,
+      operator:currentUser.name, time:Date.now()
+    });
+    resultHtml = `<div style="padding:14px 16px;background:var(--warning-light);border-radius:var(--radius);margin-top:8px;border-left:3px solid var(--warning)">
+      <strong>✅ 新进车辆</strong>：车牌 <strong>${plate}</strong> 无台账匹配，自动归入【待绑定车商列表】。分区：${zone}，设备：${deviceId}
+    </div>`;
+    showToast(`新车牌 ${plate} 已归入待绑定列表`, 'info');
+  } else if (v.status === 'external') {
+    resultHtml = `<div style="padding:14px 16px;background:#fef7e0;border-radius:var(--radius);margin-top:8px;border-left:3px solid var(--warning)">
+      <strong>⚠️ 外来车辆</strong>：车牌 <strong>${plate}</strong> 为外来社会车辆，隔离归类，不关联车商、不参与统计。
+    </div>`;
+  } else {
+    if (v.status==='forsale') v.flowCount++;
+    entryRecords.unshift({
+      id:entryRecords.length+1, plate:v.plate, vehicleId:v.id, dealerId:v.dealerId,
+      time:Date.now(), direction, zone, deviceId
+    });
+    const typeLabel = v.status==='forsale'?'在售车辆':'已售车辆';
+    resultHtml = `<div style="padding:14px 16px;background:var(--success-light);border-radius:var(--radius);margin-top:8px;border-left:3px solid var(--success)">
+      <strong>✅ ${direction}记录</strong>：车牌 <strong>${plate}</strong>（${typeLabel}，归属：${getDealerName(v.dealerId)}），已自动关联车商数据。流转次数：${v.flowCount}
+    </div>`;
+  }
+  document.getElementById('entryResult').innerHTML = resultHtml;
+  if (currentPage==='entry') navigateTo('entry');
+}
+
+// ===== PAGE: PENDING =====
+function renderPending() {
+  const pendingVehicles = vehicles.filter(v=>v.status==='pending');
+  const filtered = filterVehicles(pendingVehicles);
+
+  let html = `<div class="stat-cards">
+    <div class="stat-card"><div class="card-gradient grad-orange"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-orange">🆕</div>
+      <div class="stat-info"><div class="stat-label">待绑定总数</div><div class="stat-value">${pendingVehicles.length}</div></div>
+    </div></div>
+  </div>`;
+
+  html += `<div class="panel">
+    <div class="panel-header"><h3>待绑定车辆列表</h3><span style="font-size:12px;color:var(--text-muted)">${filtered.length} 辆待处理</span></div>
+    <div class="panel-body">
+      <div class="filters">
+        <input type="text" placeholder="搜索车牌号或品牌" id="pendingSearch" oninput="vehicleFilter.search=this.value;document.getElementById('pendingList').innerHTML=renderPendingTable()">
+        <select id="pendingZone" onchange="vehicleFilter.zone=this.value;document.getElementById('pendingList').innerHTML=renderPendingTable()">
+          <option value="">全部分区</option><option value="A区">A区</option><option value="B区">B区</option>
+        </select>
+      </div>
+      <div id="pendingList">${renderPendingTable()}</div>
+    </div>
+  </div>`;
+  return html;
+}
+
+function renderPendingTable() {
+  const pendingVehicles = vehicles.filter(v=>v.status==='pending');
+  const filtered = filterVehicles(pendingVehicles);
+  if (filtered.length===0) return '<div class="empty">暂无待绑定车辆</div>';
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>车牌</th><th>品牌/车型</th><th>颜色</th><th>进场时间</th><th>分区</th><th>状态</th><th>操作</th></tr></thead>
+    <tbody>${filtered.map(v=>`
+      <tr>
+        <td><strong>${v.plate}</strong></td><td>${v.brand}</td><td>${v.color}</td>
+        <td>${fmtTime(v.entryTime)}</td><td>${v.entryZone}</td>
+        <td>${getStatusBadge(v.status)}</td>
+        <td><button class="btn btn-warning btn-sm" onclick="openBindModal(${v.id})">绑定车商</button></td>
+      </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function openBindModal(vehicleId) {
+  const v = vehicles.find(x=>x.id===vehicleId);
+  if (!v) return;
+  const activeDealers = dealers.filter(d=>d.status==='active');
+  openModal('绑定车辆到车商', `
+    <div class="form-group"><label>车牌号</label><input value="${v.plate}" readonly></div>
+    <div class="form-group"><label>品牌/车型</label><input value="${v.brand}" readonly></div>
+    <div class="form-group"><label>选择归属车商</label>
+      <select id="bindDealerId">${activeDealers.map(d=>`<option value="${d.id}">${d.name} (${d.zone})</option>`).join('')}</select>
+    </div>
+    <div class="form-group"><label>备注</label><input id="bindRemark" placeholder="可选备注信息"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">取消</button>
+      <button class="btn btn-warning" onclick="doBind(${vehicleId})">确认绑定</button>
+    </div>
+  `);
+}
+
+function doBind(vehicleId) {
+  const v = vehicles.find(x=>x.id===vehicleId);
+  if (!v) return;
+  const dealerId = document.getElementById('bindDealerId').value;
+  const remark = document.getElementById('bindRemark').value;
+  v.dealerId = dealerId; v.status = 'forsale'; v.type = 'forsale'; v.flowCount = 1;
+  entryRecords.unshift({
+    id:entryRecords.length+1, plate:v.plate, vehicleId:v.id, dealerId,
+    time:Date.now(), direction:'进场', zone:v.entryZone, deviceId:`CAM-${v.entryZone==='A区'?'A1':'B1'}`
+  });
+  operationLogs.unshift({
+    id:operationLogs.length+1, action:'车辆绑定',
+    detail:`车牌 [${v.plate}] 绑定至车商 [${getDealerName(dealerId)}]${remark?'，备注：'+remark:''}`,
+    operator:currentUser.name, time:Date.now()
+  });
+  closeModal();
+  showToast(`车牌 ${v.plate} 已成功绑定至 ${getDealerName(dealerId)}，状态变更为"在售"`, 'success');
+  if (currentPage==='pending') navigateTo('pending');
+}
+
+// ===== PAGE: FOR SALE =====
+function renderForSale() {
+  const forSaleVehicles = vehicles.filter(v=>v.status==='forsale');
+  const filtered = filterVehicles(forSaleVehicles);
+
+  let html = `<div class="stat-cards">
+    <div class="stat-card"><div class="card-gradient grad-green"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-green">🚗</div>
+      <div class="stat-info"><div class="stat-label">在售总数</div><div class="stat-value">${forSaleVehicles.length}</div></div>
+    </div></div>
+    <div class="stat-card"><div class="card-gradient grad-blue"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-blue">🔄</div>
+      <div class="stat-info"><div class="stat-label">总流转次数</div><div class="stat-value">${forSaleVehicles.reduce((s,v)=>s+v.flowCount,0)}</div></div>
+    </div></div>
+  </div>`;
+
+  html += `<div class="panel">
+    <div class="panel-header">
+      <h3>${currentUser.role==='dealer'?'我的':''}在售车辆列表</h3>
+      <div style="display:flex;gap:8px">
+        ${currentUser.role==='admin'?`<button class="btn btn-danger btn-sm" onclick="showToast('请先在列表中选择车辆后再解绑','warning')">批量解绑</button>`:''}
+        <span style="font-size:12px;color:var(--text-muted)">${filtered.length} 辆</span>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="filters">
+        <input type="text" placeholder="搜索车牌号" id="fsSearch" oninput="vehicleFilter.search=this.value;document.getElementById('fsList').innerHTML=renderForSaleTable()">
+        <select id="fsZone" onchange="vehicleFilter.zone=this.value;document.getElementById('fsList').innerHTML=renderForSaleTable()">
+          <option value="">全部分区</option><option value="A区">A区</option><option value="B区">B区</option>
+        </select>
+      </div>
+      <div id="fsList">${renderForSaleTable()}</div>
+    </div>
+  </div>`;
+  return html;
+}
+
+function renderForSaleTable() {
+  const forSale = vehicles.filter(v=>v.status==='forsale');
+  const filtered = filterVehicles(forSale);
+  if (filtered.length===0) return '<div class="empty">暂无在售车辆</div>';
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>车牌</th><th>品牌/车型</th><th>颜色</th><th>进场时间</th><th>分区</th><th>归属车商</th><th>流转次数</th><th>状态</th><th>操作</th></tr></thead>
+    <tbody>${filtered.map(v=>`
+      <tr>
+        <td><strong>${v.plate}</strong></td><td>${v.brand}</td><td>${v.color}</td>
+        <td>${fmtTime(v.entryTime)}</td><td>${v.entryZone}</td>
+        <td>${getDealerName(v.dealerId)}</td><td>${v.flowCount}</td>
+        <td>${getStatusBadge(v.status)}</td>
+        <td>
+          ${currentUser.role!=='dealer'?`<button class="btn btn-success btn-xs" onclick="openSellModal(${v.id})">标记售出</button>`:''}
+          ${currentUser.role==='admin'?`<button class="btn btn-outline btn-xs" onclick="openUnbindSingleModal(${v.id})" style="margin-left:4px">解绑</button>`:''}
+        </td>
+      </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function openUnbindSingleModal(vehicleId) {
+  const v = vehicles.find(x=>x.id===vehicleId);
+  if (!v) return;
+  openModal('解除车辆绑定', `
+    <p style="margin-bottom:16px;">确认解除车牌 <strong>${v.plate}</strong> 与车商 <strong>${getDealerName(v.dealerId)}</strong> 的绑定关系？</p>
+    <p style="color:var(--text-secondary);font-size:13px;">解绑后车辆将回到"待绑定"状态。</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">取消</button>
+      <button class="btn btn-danger" onclick="doUnbind(${vehicleId})">确认解绑</button>
+    </div>
+  `);
+}
+
+function doUnbind(vehicleId) {
+  const v = vehicles.find(x=>x.id===vehicleId);
+  if (!v) return;
+  const oldDealer = getDealerName(v.dealerId);
+  v.dealerId = null; v.status = 'pending'; v.type = 'new'; v.flowCount = 0;
+  operationLogs.unshift({
+    id:operationLogs.length+1, action:'车辆解绑',
+    detail:`车牌 [${v.plate}] 解除与车商 [${oldDealer}] 的绑定，回到待绑定状态`,
+    operator:currentUser.name, time:Date.now()
+  });
+  closeModal();
+  showToast(`车牌 ${v.plate} 已解绑`, 'info');
+  navigateTo('forsale');
+}
+
+// ===== PAGE: TRANSACTION =====
+function renderTransaction() {
+  if (currentUser.role!=='admin') return '<div class="panel"><div class="panel-body empty">仅超级管理员可操作交易闭环</div></div>';
+  const soldVehicles = vehicles.filter(v=>v.status==='sold');
+  const forSaleVehicles = vehicles.filter(v=>v.status==='forsale');
+
+  let html = `<div class="stat-cards">
+    <div class="stat-card"><div class="card-gradient grad-green"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-green">🚗</div>
+      <div class="stat-info"><div class="stat-label">可交易车辆</div><div class="stat-value">${forSaleVehicles.length}</div></div>
+    </div></div>
+    <div class="stat-card"><div class="card-gradient grad-red"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-red">💰</div>
+      <div class="stat-info"><div class="stat-label">已售车辆</div><div class="stat-value">${soldVehicles.length}</div></div>
+    </div></div>
+  </div>`;
+
+  html += `<div class="panel">
+    <div class="panel-header"><h3>📦 车辆售出 / 车牌变更</h3></div>
+    <div class="panel-body">
+      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">完整交易闭环：标记售出 → 状态变更 → 可选车牌变更 → 旧牌屏蔽 → 操作日志全留痕</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>车牌</th><th>品牌</th><th>归属车商</th><th>流转次数</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>${forSaleVehicles.map(v=>`
+            <tr>
+              <td><strong>${v.plate}</strong></td><td>${v.brand}</td>
+              <td>${getDealerName(v.dealerId)}</td><td>${v.flowCount}</td>
+              <td>${getStatusBadge(v.status)}</td>
+              <td><button class="btn btn-success btn-sm" onclick="openSellModal(${v.id})">标记售出</button></td>
+            </tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+
+  html += `<div class="panel">
+    <div class="panel-header"><h3>已售车辆（车牌变更记录）</h3></div>
+    <div class="panel-body no-padding">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>旧车牌</th><th>新车牌</th><th>归属车商</th><th>售出时间</th><th>原流转次数</th><th>操作</th></tr></thead>
+          <tbody>${soldVehicles.map(v=>`
+            <tr>
+              <td><strong>${v.plate}</strong></td>
+              <td>${v.newPlate||'（未变更）'}</td>
+              <td>${getDealerName(v.dealerId)}</td>
+              <td>${fmtTime(v.soldTime||'')}</td>
+              <td>${v.flowCount}</td>
+              <td>
+                ${!v.newPlate?`<button class="btn btn-warning btn-xs" onclick="openPlateChangeModal(${v.id})">录入新车牌</button>`:''}
+                <button class="btn btn-outline btn-xs" onclick="viewVehicleDetail(${v.id})">查看详情</button>
+              </td>
+            </tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+  return html;
+}
+
+function openSellModal(vehicleId) {
+  const v = vehicles.find(x=>x.id===vehicleId);
+  if (!v) return;
+  openModal('车辆售出确认', `
+    <div class="form-group"><label>车牌号</label><input value="${v.plate}" readonly></div>
+    <div class="form-group"><label>品牌</label><input value="${v.brand}" readonly></div>
+    <div class="form-group"><label>归属车商</label><input value="${getDealerName(v.dealerId)}" readonly></div>
+    <div class="form-group"><label>累计流转次数</label><input value="${v.flowCount}" readonly></div>
+    <p style="color:var(--danger);font-size:13px;margin:12px 0;padding:10px;background:var(--danger-light);border-radius:var(--radius-sm)">确认售出后，该车辆状态将从"在售"变更为"已售"，终止场内流转统计。</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">取消</button>
+      <button class="btn btn-success" onclick="doSell(${vehicleId})">确认售出</button>
+    </div>
+  `);
+}
+
+function doSell(vehicleId) {
+  const v = vehicles.find(x=>x.id===vehicleId);
+  if (!v) return;
+  v.status = 'sold'; v.soldTime = Date.now();
+  operationLogs.unshift({
+    id:operationLogs.length+1, action:'车辆售出',
+    detail:`车牌 [${v.plate}] 状态变更为已售，所属车商 [${getDealerName(v.dealerId)}]，终止场内流转统计`,
+    operator:currentUser.name, time:Date.now()
+  });
+  closeModal();
+  showToast(`车牌 ${v.plate} 已标记为已售`, 'success');
+  navigateTo('transaction');
+}
+
+function openPlateChangeModal(vehicleId) {
+  const v = vehicles.find(x=>x.id===vehicleId);
+  if (!v) return;
+  openModal('过户新车牌录入', `
+    <div class="form-group"><label>旧车牌</label><input value="${v.plate}" readonly></div>
+    <div class="form-group"><label>归属车商</label><input value="${getDealerName(v.dealerId)}" readonly></div>
+    <div class="form-group"><label>新车牌号</label><input id="newPlate" placeholder="请输入过户后新车牌"></div>
+    <p style="color:var(--text-secondary);font-size:13px;padding:8px;background:#F8F9FA;border-radius:var(--radius-sm)">新车牌录入后，旧车牌将被屏蔽，不再参与新进/在售统计，防止数据重复。</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">取消</button>
+      <button class="btn btn-warning" onclick="doPlateChange(${vehicleId})">确认录入</button>
+    </div>
+  `);
+}
+
+function doPlateChange(vehicleId) {
+  const v = vehicles.find(x=>x.id===vehicleId);
+  if (!v) return;
+  const newPlate = (document.getElementById('newPlate')?.value||'').trim().toUpperCase();
+  if (!newPlate) { showToast('请输入新车牌号','error'); return; }
+  if (vehicles.find(x=>x.plate===newPlate && x.id!==vehicleId)) { showToast('新车牌号已存在','error'); return; }
+  const oldPlate = v.plate;
+  v.newPlate = newPlate;
+  operationLogs.unshift({
+    id:operationLogs.length+1, action:'车牌变更',
+    detail:`车牌变更：旧牌 [${oldPlate}] → 新牌 [${newPlate}]，车商 [${getDealerName(v.dealerId)}]，旧牌已屏蔽`,
+    operator:currentUser.name, time:Date.now()
+  });
+  closeModal();
+  showToast(`车牌变更完成：${oldPlate} → ${newPlate}，旧牌已屏蔽`, 'success');
+  navigateTo('transaction');
+}
+
+function viewVehicleDetail(vehicleId) {
+  const v = vehicles.find(x=>x.id===vehicleId);
+  if (!v) return;
+  const myRecords = entryRecords.filter(e=>e.vehicleId===vehicleId).slice(0,10);
+  const myLogs = operationLogs.filter(l=>l.detail.includes(v.plate)).slice(0,5);
+  closeModal();
+  openModal(`车辆详情 - ${v.plate}`, `
+    <table style="margin-bottom:12px;width:100%">
+      <tr><td style="font-weight:600;width:100px;padding:6px 0;border-bottom:1px solid var(--border)">车牌</td><td style="padding:6px 0;border-bottom:1px solid var(--border)">${v.plate}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;border-bottom:1px solid var(--border)">品牌</td><td style="padding:6px 0;border-bottom:1px solid var(--border)">${v.brand}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;border-bottom:1px solid var(--border)">归属车商</td><td style="padding:6px 0;border-bottom:1px solid var(--border)">${getDealerName(v.dealerId)}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;border-bottom:1px solid var(--border)">状态</td><td style="padding:6px 0;border-bottom:1px solid var(--border)">${getStatusBadge(v.status)}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;border-bottom:1px solid var(--border)">流转次数</td><td style="padding:6px 0;border-bottom:1px solid var(--border)">${v.flowCount}</td></tr>
+      ${v.soldTime?`<tr><td style="font-weight:600;padding:6px 0;border-bottom:1px solid var(--border)">售出时间</td><td style="padding:6px 0;border-bottom:1px solid var(--border)">${fmtTime(v.soldTime)}</td></tr>`:''}
+      ${v.newPlate?`<tr><td style="font-weight:600;padding:6px 0">新车牌</td><td style="padding:6px 0">${v.newPlate}</td></tr>`:''}
+    </table>
+    <p style="font-weight:600;font-size:13px;margin:8px 0">最近出入记录：</p>
+    ${myRecords.length?myRecords.map(e=>`<div style="font-size:12px;padding:5px 0;border-bottom:1px solid #eee">${fmtTime(e.time)} ${e.direction==='进场'?'<span style="color:var(--success)">进场</span>':'<span style="color:var(--danger)">出场</span>'} ${e.zone} ${e.deviceId}</div>`).join(''):'<div style="font-size:12px;color:var(--text-muted)">无记录</div>'}
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">关闭</button></div>
+  `);
+}
+
+// ===== PAGE: DEALERS =====
+function renderDealers() {
+  if (currentUser.role!=='admin') return '<div class="panel"><div class="panel-body empty">仅超级管理员可管理车商</div></div>';
+  const active = dealers.filter(d=>d.status==='active');
+  const inactive = dealers.filter(d=>d.status==='inactive');
+
+  let html = `<div class="stat-cards">
+    <div class="stat-card"><div class="card-gradient grad-green"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-green">👥</div>
+      <div class="stat-info"><div class="stat-label">活跃车商</div><div class="stat-value">${active.length}</div></div>
+    </div></div>
+    <div class="stat-card"><div class="card-gradient grad-red"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-red">🚫</div>
+      <div class="stat-info"><div class="stat-label">已停用车商</div><div class="stat-value">${inactive.length}</div></div>
+    </div></div>
+    <div class="stat-card"><div class="card-gradient grad-blue"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-blue">🚗</div>
+      <div class="stat-info"><div class="stat-label">总绑定车辆</div><div class="stat-value">${vehicles.filter(v=>v.dealerId).length}</div></div>
+    </div></div>
+  </div>`;
+
+  html += `<div class="panel">
+    <div class="panel-header"><h3>车商档案管理</h3><button class="btn btn-primary btn-sm" onclick="openAddDealerModal()">+ 新增车商</button></div>
+    <div class="panel-body no-padding">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>车商名称</th><th>所属分区</th><th>联系电话</th><th>状态</th><th>绑定车辆</th><th>注册日期</th><th>操作</th></tr></thead>
+          <tbody>${dealers.map(d=>{
+            const count = vehicles.filter(v=>v.dealerId===d.id).length;
+            const sold = vehicles.filter(v=>v.dealerId===d.id&&v.status==='sold').length;
+            return `<tr>
+              <td><strong>${d.name}</strong></td><td>${d.zone}</td><td>${d.phone}</td>
+              <td>${d.status==='active'?'<span style="color:var(--success);font-weight:600">● 活跃</span>':'<span style="color:var(--danger);font-weight:600">○ 已停用</span>'}</td>
+              <td>${count} 辆（已售 ${sold}）</td><td>${d.regDate}</td>
+              <td>
+                <button class="btn btn-outline btn-xs" onclick="openEditDealerModal('${d.id}')">编辑</button>
+                <button class="btn ${d.status==='active'?'btn-warning':'btn-success'} btn-xs" onclick="toggleDealer('${d.id}')" style="margin-left:4px">${d.status==='active'?'停用':'启用'}</button>
+              </td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+  return html;
+}
+
+function openAddDealerModal() {
+  openModal('新增车商', `
+    <div class="form-group"><label>车商名称</label><input id="newDealerName" placeholder="请输入车商名称"></div>
+    <div class="form-group"><label>所属分区</label><select id="newDealerZone"><option>A区</option><option>B区</option></select></div>
+    <div class="form-group"><label>联系电话</label><input id="newDealerPhone" placeholder="请输入联系电话"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="doAddDealer()">确认新增</button>
+    </div>
+  `);
+}
+
+function doAddDealer() {
+  const name = (document.getElementById('newDealerName')?.value||'').trim();
+  const zone = document.getElementById('newDealerZone')?.value||'A区';
+  const phone = (document.getElementById('newDealerPhone')?.value||'').trim();
+  if (!name) { showToast('请输入车商名称','error'); return; }
+  dealers.push({
+    id:'dealer'+Date.now(), name, zone, phone:phone||'-', status:'active',
+    regDate: new Date().toISOString().split('T')[0]
+  });
+  operationLogs.unshift({
+    id:operationLogs.length+1, action:'新增车商',
+    detail:`新增车商 [${name}]，分区${zone}`,
+    operator:currentUser.name, time:Date.now()
+  });
+  closeModal();
+  showToast('车商新增成功','success');
+  navigateTo('dealers');
+}
+
+function openEditDealerModal(dealerId) {
+  const d = dealers.find(x=>x.id===dealerId);
+  if (!d) return;
+  openModal('编辑车商信息', `
+    <div class="form-group"><label>车商名称</label><input id="editDealerName" value="${d.name}"></div>
+    <div class="form-group"><label>所属分区</label><select id="editDealerZone"><option ${d.zone==='A区'?'selected':''}>A区</option><option ${d.zone==='B区'?'selected':''}>B区</option></select></div>
+    <div class="form-group"><label>联系电话</label><input id="editDealerPhone" value="${d.phone}"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="doEditDealer('${dealerId}')">保存修改</button>
+    </div>
+  `);
+}
+
+function doEditDealer(dealerId) {
+  const d = dealers.find(x=>x.id===dealerId);
+  if (!d) return;
+  d.name = (document.getElementById('editDealerName')?.value||'').trim();
+  d.zone = document.getElementById('editDealerZone')?.value||d.zone;
+  d.phone = (document.getElementById('editDealerPhone')?.value||'').trim();
+  operationLogs.unshift({
+    id:operationLogs.length+1, action:'编辑车商',
+    detail:`编辑车商 [${d.name}] 信息`,
+    operator:currentUser.name, time:Date.now()
+  });
+  closeModal();
+  showToast('车商信息已更新','success');
+  navigateTo('dealers');
+}
+
+function toggleDealer(dealerId) {
+  const d = dealers.find(x=>x.id===dealerId);
+  if (!d) return;
+  d.status = d.status==='active'?'inactive':'active';
+  operationLogs.unshift({
+    id:operationLogs.length+1, action:d.status==='active'?'启用车商':'停用车商',
+    detail:`${d.status==='active'?'启用':'停用'}车商 [${d.name}]`,
+    operator:currentUser.name, time:Date.now()
+  });
+  showToast(`车商 ${d.name} 已${d.status==='active'?'启用':'停用'}`,'info');
+  navigateTo('dealers');
+}
+
+// ===== PAGE: STATISTICS =====
+function renderStatistics() {
+  const isDealer = currentUser.role==='dealer';
+  const vBase = isDealer ? vehicles.filter(v=>v.dealerId===currentUser.id) : vehicles;
+
+  const days = [];
+  for (let i=6;i>=0;i--) {
+    const dayStart = now-DAY*i;
+    const dayEnd = dayStart+DAY;
+    const sold = vBase.filter(v=>v.status==='sold'&&v.soldTime&&v.soldTime>=dayStart&&v.soldTime<dayEnd).length;
+    const allFlow = vBase.filter(v=>(v.status==='forsale'||v.status==='sold')).reduce((s,v)=>s+v.flowCount,0);
+    const bindings = operationLogs.filter(l=>l.action==='车辆绑定'&&l.time>=dayStart&&l.time<dayEnd).length;
+    const dateStr = new Date(dayStart);
+    days.push({ label:`${dateStr.getMonth()+1}/${dateStr.getDate()}`, sold, flow:Math.max(Math.round(allFlow/7),0), bindings });
+  }
+
+  const dealerStats = dealers.filter(d=>d.status==='active').map(d=>{
+    const myV = vehicles.filter(v=>v.dealerId===d.id);
+    return {
+      name:d.name, zone:d.zone,
+      forSale: myV.filter(v=>v.status==='forsale').length,
+      sold: myV.filter(v=>v.status==='sold').length,
+      flow: myV.filter(v=>v.status==='forsale'||v.status==='sold').reduce((s,v)=>s+v.flowCount,0)
+    };
+  });
+
+  let html = '';
+  if (!isDealer) {
+    html += `<div class="stat-cards">
+      <div class="stat-card"><div class="card-gradient grad-red"></div><div class="card-body">
+        <div class="stat-icon-wrap icon-red">💰</div>
+        <div class="stat-info"><div class="stat-label">本月总销量</div><div class="stat-value">${vBase.filter(v=>v.status==='sold').length}</div></div>
+      </div></div>
+      <div class="stat-card"><div class="card-gradient grad-green"></div><div class="card-body">
+        <div class="stat-icon-wrap icon-green">🚗</div>
+        <div class="stat-info"><div class="stat-label">当前在售</div><div class="stat-value">${vBase.filter(v=>v.status==='forsale').length}</div></div>
+      </div></div>
+      <div class="stat-card"><div class="card-gradient grad-blue"></div><div class="card-body">
+        <div class="stat-icon-wrap icon-blue">🔄</div>
+        <div class="stat-info"><div class="stat-label">总流转</div><div class="stat-value">${vBase.filter(v=>v.status==='forsale'||v.status==='sold').reduce((s,v)=>s+v.flowCount,0)}</div></div>
+      </div></div>
+      <div class="stat-card"><div class="card-gradient grad-orange"></div><div class="card-body">
+        <div class="stat-icon-wrap icon-orange">🆕</div>
+        <div class="stat-info"><div class="stat-label">总绑定</div><div class="stat-value">${operationLogs.filter(l=>l.action==='车辆绑定').length}</div></div>
+      </div></div>
+    </div>`;
+  }
+
+  // Charts
+  const maxSold = Math.max(...days.map(d=>d.sold),1);
+  const maxFlow = Math.max(...days.map(d=>d.flow),1);
+
+  html += `<div class="chart-section"><div class="chart-row">
+    <div class="chart-card">
+      <h4>📈 近7日销量趋势</h4>
+      <div class="chart-bar-wrap">
+        ${days.map(d=>`<div class="chart-bar">
+          <div class="bar-val">${d.sold}</div>
+          <div class="bar" style="height:${Math.max(d.sold/maxSold*140,4)}px;background:linear-gradient(0deg,var(--primary),var(--primary-dark))"></div>
+          <div class="bar-label">${d.label}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="chart-card">
+      <h4>🔄 近7日场内流转趋势</h4>
+      <div class="chart-bar-wrap">
+        ${days.map(d=>`<div class="chart-bar">
+          <div class="bar-val">${d.flow}</div>
+          <div class="bar" style="height:${Math.max(d.flow/maxFlow*140,4)}px;background:linear-gradient(0deg,var(--success),#27ae60)"></div>
+          <div class="bar-label">${d.label}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div></div>`;
+
+  if (!isDealer) {
+    const maxDS = Math.max(...dealerStats.map(d=>d.sold),1);
+    html += `<div class="panel">
+      <div class="panel-header"><h3>车商业绩对比</h3></div>
+      <div class="panel-body no-padding">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>车商</th><th>分区</th><th>在售</th><th>已售</th><th>流转</th><th>售出占比</th></tr></thead>
+            <tbody>${dealerStats.map(d=>`
+              <tr>
+                <td><strong>${d.name}</strong></td><td>${d.zone}</td><td>${d.forSale}</td>
+                <td style="color:var(--danger);font-weight:700">${d.sold}</td><td>${d.flow}</td>
+                <td><div style="background:#eee;border-radius:10px;height:8px;width:120px"><div style="background:linear-gradient(90deg,var(--primary),var(--success));height:100%;width:${Math.round(d.sold/maxDS*100)}%;border-radius:10px"></div></div></td>
+              </tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  return html;
+}
+
+// ===== PAGE: REPORTS =====
+function renderReports() {
+  if (currentUser.role==='dealer') return '<div class="panel"><div class="panel-body empty">仅管理员和操作员可查看报表</div></div>';
+
+  let html = `<div class="panel">
+    <div class="panel-header">
+      <h3>车辆进出明细报表</h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline btn-sm" onclick="showToast('模拟导出Excel：车辆进出明细.xlsx','success')">📥 导出Excel</button>
+        <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ 打印</button>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="filters">
+        <input type="text" placeholder="搜索车牌" id="reportSearch" oninput="document.getElementById('reportTbl').innerHTML=renderReportTable()">
+        <select id="reportStatus" onchange="document.getElementById('reportTbl').innerHTML=renderReportTable()">
+          <option value="">全部状态</option><option value="pending">待绑定</option><option value="forsale">在售</option><option value="sold">已售</option><option value="external">外来</option>
+        </select>
+        <select id="reportDealer" onchange="document.getElementById('reportTbl').innerHTML=renderReportTable()">
+          <option value="">全部车商</option>${dealers.map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}
+        </select>
+      </div>
+      <div id="reportTbl">${renderReportTable()}</div>
+    </div>
+  </div>`;
+
+  html += `<div class="panel">
+    <div class="panel-header"><h3>车商月度业绩报表</h3></div>
+    <div class="panel-body no-padding">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>车商</th><th>分区</th><th>在售</th><th>已售</th><th>总流转</th><th>绑定数</th><th>状态</th></tr></thead>
+          <tbody>${dealers.map(d=>{
+            const myv = vehicles.filter(v=>v.dealerId===d.id);
+            return `<tr>
+              <td><strong>${d.name}</strong></td><td>${d.zone}</td>
+              <td>${myv.filter(v=>v.status==='forsale').length}</td>
+              <td style="font-weight:700">${myv.filter(v=>v.status==='sold').length}</td>
+              <td>${myv.filter(v=>v.status==='forsale'||v.status==='sold').reduce((s,v)=>s+v.flowCount,0)}</td>
+              <td>${myv.length}</td>
+              <td>${d.status==='active'?'<span style="color:var(--success);font-weight:600">活跃</span>':'<span style="color:var(--danger);font-weight:600">已停用</span>'}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+  return html;
+}
+
+function renderReportTable() {
+  const search = (document.getElementById('reportSearch')?.value||'').toUpperCase();
+  const statusFilter = document.getElementById('reportStatus')?.value||'';
+  const dealerFilter = document.getElementById('reportDealer')?.value||'';
+  let result = vehicles;
+  if (search) result = result.filter(v=>v.plate.toUpperCase().includes(search)||(v.brand||'').toUpperCase().includes(search));
+  if (statusFilter) result = result.filter(v=>v.status===statusFilter);
+  if (dealerFilter) result = result.filter(v=>v.dealerId===dealerFilter);
+  if (result.length===0) return '<div class="empty">无匹配数据</div>';
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>车牌</th><th>品牌</th><th>状态</th><th>归属车商</th><th>进场时间</th><th>分区</th><th>流转次数</th><th>售出时间</th><th>新车牌</th></tr></thead>
+    <tbody>${result.map(v=>`<tr>
+      <td><strong>${v.plate}</strong></td><td>${v.brand}</td><td>${getStatusBadge(v.status)}</td>
+      <td>${getDealerName(v.dealerId)}</td><td>${fmtTime(v.entryTime)}</td><td>${v.entryZone}</td>
+      <td>${v.flowCount}</td><td>${v.soldTime?fmtTime(v.soldTime):'-'}</td>
+      <td>${v.newPlate||'-'}</td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+// ===== PAGE: LOGS =====
+function renderLogs() {
+  let logs = operationLogs;
+  if (currentUser.role==='dealer') {
+    logs = logs.filter(l=>l.detail.includes(currentUser.name)||l.operator===currentUser.name);
+  }
+  const actionColors = {
+    '车辆绑定':'#fef3c7', '车辆售出':'#fce8e6', '车牌变更':'#e8f0fe',
+    '车辆解绑':'#fce7f3', '新车进场':'#e5e7eb', '新增车商':'#d1fae5', '编辑车商':'#e8f0fe', '启用车商':'#d1fae5', '停用车商':'#fce8e6'
+  };
+  return `
+  <div class="stat-cards">
+    <div class="stat-card"><div class="card-gradient grad-blue"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-blue">📝</div>
+      <div class="stat-info"><div class="stat-label">总操作日志</div><div class="stat-value">${logs.length}</div></div>
+    </div></div>
+    <div class="stat-card"><div class="card-gradient grad-green"></div><div class="card-body">
+      <div class="stat-icon-wrap icon-green">📋</div>
+      <div class="stat-info"><div class="stat-label">今日日志</div><div class="stat-value">${logs.filter(l=>l.time>now-DAY).length}</div></div>
+    </div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-header"><h3>全流程操作日志</h3><span style="font-size:12px;color:var(--text-muted)">共 ${logs.length} 条</span></div>
+    <div class="panel-body no-padding">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>时间</th><th>操作类型</th><th>操作详情</th><th>操作人</th></tr></thead>
+          <tbody>${logs.map(l=>`
+            <tr>
+              <td>${fmtTime(l.time)}</td>
+              <td><span class="badge" style="background:${actionColors[l.action]||'#e5e7eb'};color:#333">${l.action}</span></td>
+              <td>${l.detail}</td><td>${l.operator}</td>
+            </tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ===== INIT =====
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+document.getElementById('loginPwd')?.addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
+console.log('二手车停车场交易管理系统 v2026 (优化版) 已就绪');
+</script>
+</body>
+</html>
